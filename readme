@@ -1,5 +1,36 @@
-Para rodar o projeto
+## Dependências do Projeto
 
-npm install
+- **cors**: Permite que o servidor aceite requisições de diferentes origens.
+- **dotenv**: Carrega variáveis de ambiente a partir de um arquivo `.env`.
+- **express**: Framework para construir aplicações web e APIs em Node.js.
+- **nodemon**: Reinicia automaticamente o servidor ao detectar alterações no código.
+- **typescript**: Superset do JavaScript que adiciona tipagem estática.
 
-npm run start-dev
+## Como Rodar o Projeto
+
+1. **Clone o repositório:**
+
+   ```
+   git clone https://github.com/kemulau/backend-01-main.git
+   cd backend-01-main
+   ```
+
+2. **Instale as dependências:**
+
+   ```
+   npm install
+   ```
+
+3. **Configure as variáveis de ambiente:**
+
+   - Crie um arquivo `.env` na raiz do projeto e defina as variáveis necessárias.
+
+4. **Inicie o servidor:**
+
+   ```
+   npm run start-dev
+   ```
+
+5. **Teste a rota `ping` no navegador:**
+
+   - Acesse: `http://localhost:3000/ping`
