@@ -1,4 +1,4 @@
-## Dependências do Projeto
+# Dependências do Projeto
 
 - **cors**: Permite que o servidor aceite requisições de diferentes origens.
 - **dotenv**: Carrega variáveis de ambiente a partir de um arquivo `.env`.
@@ -6,31 +6,29 @@
 - **nodemon**: Reinicia automaticamente o servidor ao detectar alterações no código.
 - **typescript**: Superset do JavaScript que adiciona tipagem estática.
 
-## Como Rodar o Projeto
+---
 
-1. **Clone o repositório:**
+## 🚀 Como Rodar o Projeto
 
-   ```
-   git clone https://github.com/kemulau/backend-01-main.git
-   cd backend-01-main
-   ```
+### 1️⃣ Clone o repositório:
+```sh
+git clone https://github.com/kemulau/backend-01-main.git
+cd backend-01-main
+```
 
-2. **Instale as dependências:**
+### 2️⃣ Instale as dependências:
+```sh
+npm install
+```
 
-   ```
-   npm install
-   ```
+### 3️⃣ Configure as variáveis de ambiente:
+- Crie um arquivo `.env` na raiz do projeto e defina as variáveis necessárias.
 
-3. **Configure as variáveis de ambiente:**
+### 4️⃣ Inicie o servidor:
+```sh
+npm run start-dev
+```
 
-   - Crie um arquivo `.env` na raiz do projeto e defina as variáveis necessárias.
+### 5️⃣ Teste a rota `ping` no navegador:
+🔗 Acesse: [http://localhost:3000/ping](http://localhost:3000/ping)
 
-4. **Inicie o servidor:**
-
-   ```
-   npm run start-dev
-   ```
-
-5. **Teste a rota `ping` no navegador:**
-
-   - Acesse: `http://localhost:3000/ping`
