@@ -23,10 +23,3 @@ Este projeto utiliza algumas bibliotecas essenciais para seu funcionamento. Abai
 ### 💡 **typescript**
 - **Descrição**: Superset do JavaScript que adiciona tipagem estática e recursos avançados de desenvolvimento.
 - **Uso**: Ajuda a evitar erros no código, melhora a legibilidade e fornece suporte a funcionalidades mais robustas, tornando o desenvolvimento mais seguro e produtivo.
-
----
-
-Essas dependências foram escolhidas para tornar o projeto mais eficiente, seguro e escalável. Caso precise instalar todas de uma vez, utilize o comando:
-
-```sh
-npm install cors dotenv express nodemon typescript
