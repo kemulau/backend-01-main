@@ -11,11 +11,18 @@
   "license": "ISC",
   "dependencies": {
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.13.10",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "nodemon": "^3.1.9"
+    "mysql2": "^3.14.0",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.6",
+    "sequelize-typescript": "^2.1.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.13",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
   }
 }

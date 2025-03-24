@@ -3,13 +3,15 @@ import path from 'path';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import apiRoutes from './routes/routes';
+import { conectaBanco } from './instances/mysql';
 
 dotenv.config();
+
 
 const server = express();
 
 server.use(cors());
-
+conectaBanco();
 server.use(express.static(path.join(__dirname, '../public')));
 
 // Definir o formato das requisições
@@ -31,7 +33,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 server.use(errorHandler);
 
 // Iniciar o servidor e exibir a porta no console
-const port = process.env.PORT || 3000; // Defina uma porta padrão se não estiver no .env
+const port = process.env.PORT || 3306; // Defina uma porta padrão se não estiver no .env
 server.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 });
