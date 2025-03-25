@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import apiRoutes from './routes/routes';
 import { conectaBanco } from './instances/mysql';
+import "./models/associations";
 
 dotenv.config();
 
