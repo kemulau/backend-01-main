@@ -1,47 +1,54 @@
 import { Request, Response } from "express";
 import { Aluno } from "../models/alunos";
 import { Disciplina } from "../models/Disciplina";
+import { AlunoDisciplina } from "../models/AlunoDisciplina";
 
 // Listar disciplinas de um aluno específico
-export const listarDisciplinasDoAluno = async (req: Request, res: Response) => {
+export const listarDisciplinasDoAluno = async (req: Request, res: Response): Promise<void> => {
     const { alunoId } = req.params;
     const aluno = await Aluno.findByPk(alunoId, {
         include: [{ model: Disciplina }]
     });
 
     if (aluno) {
-        return res.json(aluno);
+        res.json(aluno);
+        return
     }
 
-    return res.status(404).json({ error: "Aluno não encontrado" });
+     res.status(404).json({ error: "Aluno não encontrado" });
+     return
 };
 
 // Vincular um aluno a uma disciplina
-export const vincularAlunoDisciplina = async (req: Request, res: Response) => {
+export const vincularAlunoDisciplina = async (req: Request, res: Response): Promise<void> => {
     try {
         const { alunoId, disciplinaId } = req.body;
 
         if (!alunoId || !disciplinaId) {
-            return res.status(400).json({ error: "Dados incompletos." });
+             res.status(400).json({ error: "Dados incompletos." });
+             return
         }
 
         const aluno = await Aluno.findByPk(alunoId);
         const disciplina = await Disciplina.findByPk(disciplinaId);
 
         if (!aluno || !disciplina) {
-            return res.status(404).json({ error: "Aluno ou disciplina não encontrado." });
+             res.status(404).json({ error: "Aluno ou disciplina não encontrado." });
+             return
         }
 
-        const vinculoExistente = await aluno.hasDisciplina(disciplina);
-        if (vinculoExistente) {
-            return res.status(409).json({ error: "Vínculo já existente entre o aluno e a disciplina." });
-        }
-
-        await aluno.addDisciplina(disciplina);
-        return res.json({ message: "Aluno vinculado à disciplina com sucesso!" });
+        if (await (aluno as any).hasDisciplina(disciplina)) {
+            res.status(409).json({ error: "Vínculo já existente entre o aluno e a disciplina." });
+            return;
+          }
+          
+          await (aluno as any).addDisciplina(disciplina);
+          res.json({ message: "Aluno vinculado à disciplina com sucesso!" });
+          
     } catch (error) {
         console.error("Erro ao vincular aluno à disciplina:", error);
-        return res.status(500).json({ error: "Erro interno no servidor." });
+        res.status(500).json({ error: "Erro interno no servidor." });
+        return
     }
 };
 

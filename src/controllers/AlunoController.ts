@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { Aluno } from "../models/alunos";
 
-export const listarAlunos = async (req: Request, res: Response) => {
+export const listarAlunos = async (req: Request, res: Response): Promise<void> => {
     const alunos = await Aluno.findAll();
-    return res.json(alunos);
+     res.json(alunos);
+     return
 }; 
 
-export const cadastrarAluno = async (req: Request, res: Response) => {
+export const cadastrarAluno = async (req: Request, res: Response): Promise<void> => {
     const { nome, email, matricula } = req.body; 
 
     let novoAluno = await Aluno.create({ nome, email, matricula });

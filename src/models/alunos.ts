@@ -24,7 +24,7 @@ Aluno.init(
         unique: true,
         allowNull: false,
     },
-    matriula:{
+    matricula:{
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,

@@ -16,12 +16,12 @@
     "express": "^4.21.2",
     "mod-api": "file:",
     "mysql2": "^3.14.0",
-    "sequelize": "^6.37.6",
+    "sequelize": "^6.37.7",
     "sequelize-typescript": "^2.1.6"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
-    "@types/node": "^22.13.13",
+    "@types/node": "^22.13.14",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"

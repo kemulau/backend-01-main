@@ -1,12 +1,14 @@
+import { cadastrarAluno, listarAlunos } from '../controllers/AlunoController';
+import { cadastrarDisciplina } from '../controllers/DisciplinaController';
+import { listarDisciplinasDoAluno, vincularAlunoDisciplina } from '../controllers/AlunoDisciplinaController';
 import { Router } from 'express';
-import * as AlunoController from '../controllers/AlunoController';
-import * as ApiController from '../controllers/apiController';
 
 const router = Router();
 
-router.post('', AlunoController.cadastrarAluno)
-router.get('/kemulau', ApiController.ping)
-
-router
+router.get('/listarTodosAlunos', listarAlunos);
+router.get('/listarTodasDisciplinasAluno', listarDisciplinasDoAluno);
+router.post('/cadastrarDisciplina', cadastrarDisciplina);
+router.post('/cadastrarAluno', cadastrarAluno);
+router.post('/vincularAlunoDisciplina', vincularAlunoDisciplina);
 
 export default router;
