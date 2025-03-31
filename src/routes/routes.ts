@@ -2,10 +2,14 @@ import { Router } from 'express';
 import { 
 cadastrarAluno,
 listarAlunos, 
-atualizarAluno } from '../controllers/AlunoController';
+atualizarAluno,
+deletarAluno,
+buscarAlunoPorId } from '../controllers/AlunoController';
 import { 
 atualizarDisciplina,
-cadastrarDisciplina } from '../controllers/DisciplinaController';
+cadastrarDisciplina,
+deletarDisciplina,
+buscarDisciplinaPorId } from '../controllers/DisciplinaController';
 import { 
 listarDisciplinasDoAluno,
 vincularAlunoDisciplina } from '../controllers/AlunoDisciplinaController';
@@ -13,11 +17,16 @@ vincularAlunoDisciplina } from '../controllers/AlunoDisciplinaController';
 
 const router = Router();
 
+router.delete('/alunos/:id', deletarAluno);
+router.get('/alunos/:id', buscarAlunoPorId);
 router.put('/atualizarAluno/:alunoId', atualizarAluno);
 router.get('/listarTodosAlunos', listarAlunos);
-router.get('/listarTodasDisciplinasAluno', listarDisciplinasDoAluno);
-router.post('/cadastrarDisciplina', cadastrarDisciplina);
 router.post('/cadastrarAluno', cadastrarAluno);
+router.get('/listarTodasDisciplinasAluno', listarDisciplinasDoAluno);
+
+router.delete('/disciplinas/:id', deletarDisciplina);
+router.get('/disciplinas/:id', buscarDisciplinaPorId);
+router.post('/cadastrarDisciplina', cadastrarDisciplina);
 router.post('/vincularAlunoDisciplina', vincularAlunoDisciplina);
 router.put('/atualizarDisciplina/:discilinaId', atualizarDisciplina);
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Evento }  from '../models/Evento';
+import { Evento  }  from '../models/Evento';
 
 export const criarEvento = async (req: Request, res: Response): Promise<void> => {
   const { nome, data } = req.body;
