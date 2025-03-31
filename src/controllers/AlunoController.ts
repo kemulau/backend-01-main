@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Aluno } from "../models/alunos";
+import { Aluno } from "../models/Aluno";
 
 export const listarAlunos = async (req: Request, res: Response): Promise<void> => {
     const alunos = await Aluno.findAll();

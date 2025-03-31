@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Aluno } from "../models/alunos";
+import { Aluno } from "../models/Aluno";
 import { Disciplina } from "../models/Disciplina";
 
 // Cadastrar disciplina

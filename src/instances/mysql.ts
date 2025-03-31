@@ -1,29 +1,34 @@
-import { Sequelize } from 'sequelize';
-import dotenv, { config } from 'dotenv';
-import { console } from 'inspector';
-import { error } from 'console';
+import { Sequelize } from 'sequelize-typescript';
+import { SequelizeOptions } from 'sequelize-typescript';
+import dotenv from 'dotenv';
+import { Aluno } from '../models/Aluno';
+import { Disciplina } from '../models/Disciplina';
+import { AlunoDisciplina } from '../models/AlunoDisciplina';
+import {Evento} from '../models/Evento';
+import {Participante} from '../models/Participante';
+import {EventoParticipante} from '../models/EventoParticipante';
+
 
 dotenv.config();
 
-export const sequelize = new Sequelize(
+const dbConfig: SequelizeOptions = {
+  dialect: 'mysql',
+  host: process.env.MYSQL_HOST,
+  port: Number(process.env.MYSQL_PORT),
+  username: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DB,
+  models: [Aluno, Disciplina, AlunoDisciplina, Evento, Participante, EventoParticipante],
+  logging: false,
+};
 
-    process.env.MYSQL_DB as string,
-    process.env.MYSQL_USER as string,
-    process.env.MYSQL_PASSWORD as string,
-    {
-        dialect : 'mysql',
-        port: parseInt(process.env.MYSQL_PORT as string),
-        host: process.env.MYSQL_HOST
-    }
-);
+export const sequelize = new Sequelize(dbConfig);
 
 export const conectaBanco = async () => {
-    try {
-         await sequelize.authenticate();
-         console.log("Conectado ao banco com sucesso");
-    }
-    catch(error){
-        console.error("erro ao conectar ao banco");
-    }
-    
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Conectado ao banco com sucesso!');
+  } catch (error) {
+    console.error('❌ Erro ao conectar ao banco:', error);
+  }
 };

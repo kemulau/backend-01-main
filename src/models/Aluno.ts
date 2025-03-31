@@ -1,7 +1,7 @@
 import { Table, Column, Model, PrimaryKey, AutoIncrement, AllowNull } from 'sequelize-typescript';
 
 @Table
-export class Disciplina extends Model {
+export class Aluno extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
@@ -10,4 +10,12 @@ export class Disciplina extends Model {
   @AllowNull(false)
   @Column
   nome!: string;
+
+  @AllowNull(false)
+  @Column
+  email!: string;
+
+  @AllowNull(false)
+  @Column
+  matricula!: string;
 }

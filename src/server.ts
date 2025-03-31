@@ -5,9 +5,14 @@ import cors from 'cors';
 import apiRoutes from './routes/routes';
 import { conectaBanco } from './instances/mysql';
 import "./models/associations";
+import eventoRoutes from './routes/eventos.routes';
 
 dotenv.config();
 
+const app = express(); // 💡 aqui é onde o app precisa estar definido
+
+app.use(express.json());
+app.use(eventoRoutes); // usa suas rotas
 
 const server = express();
 
