@@ -1,6 +1,6 @@
 import { Table, Column, Model, PrimaryKey, AutoIncrement, AllowNull } from 'sequelize-typescript';
 
-@Table
+@Table({ tableName: 'alunos' })
 export class Aluno extends Model {
   @PrimaryKey
   @AutoIncrement

@@ -5,7 +5,7 @@ import {
   import { Participante } from './Participante';
   import { EventoParticipante } from './EventoParticipante';
   
-  @Table
+  @Table({ tableName: 'eventos' })
   export class Evento extends Model {
     @PrimaryKey
     @AutoIncrement
