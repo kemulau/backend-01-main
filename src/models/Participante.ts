@@ -1,26 +1,28 @@
-import {
-    Table, Column, Model, PrimaryKey, AutoIncrement, AllowNull,
-    BelongsToMany
-  } from 'sequelize-typescript';
-  import { Evento } from './Evento';
-  import { EventoParticipante } from './EventoParticipante';
-  
-  @Table({ tableName: 'participantes' })
-  export class Participante extends Model {
-    @PrimaryKey
-    @AutoIncrement
-    @Column
-    id!: number;
-  
-    @AllowNull(false)
-    @Column
-    nome!: string;
-  
-    @AllowNull(false)
-    @Column
-    email!: string;
-  
-    @BelongsToMany(() => Evento, () => EventoParticipante)
-    eventos!: Evento[];
-  }
+import { 
+Table, 
+Column, 
+Model, 
+PrimaryKey, 
+AutoIncrement, 
+AllowNull } from 'sequelize-typescript';
+
+@Table({
+  tableName: 'participantes',
+  timestamps: true,
+  paranoid: true
+})
+export class Participante extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column
+  id!: number;
+
+  @AllowNull(false)
+  @Column
+  nome!: string;
+
+  @AllowNull(false)
+  @Column
+  email!: string;
+}
   

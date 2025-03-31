@@ -3,7 +3,6 @@ import { Aluno } from "../models/Aluno";
 import { Disciplina } from "../models/Disciplina";
 import { AlunoDisciplina } from "../models/AlunoDisciplina";
 
-// Listar disciplinas de um aluno específico
 export const listarDisciplinasDoAluno = async (req: Request, res: Response): Promise<void> => {
     const { alunoId } = req.params;
     const aluno = await Aluno.findByPk(alunoId, {
@@ -14,12 +13,10 @@ export const listarDisciplinasDoAluno = async (req: Request, res: Response): Pro
         res.json(aluno);
         return
     }
-
      res.status(404).json({ error: "Aluno não encontrado" });
      return
 };
 
-// Vincular um aluno a uma disciplina
 export const vincularAlunoDisciplina = async (req: Request, res: Response): Promise<void> => {
     try {
         const { alunoId, disciplinaId } = req.body;

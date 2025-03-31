@@ -1,14 +1,17 @@
-import { Table, Column, Model, PrimaryKey, AutoIncrement, ForeignKey } from 'sequelize-typescript';
+import { 
+Table, 
+Column, 
+Model, 
+ForeignKey } from 'sequelize-typescript';
 import { Evento } from './Evento';
 import { Participante } from './Participante';
 
-@Table
+@Table({
+  tableName: 'evento_participantes',
+  timestamps: true,
+  paranoid: true
+})
 export class EventoParticipante extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  id!: number;
-
   @ForeignKey(() => Evento)
   @Column
   eventoId!: number;
@@ -17,3 +20,4 @@ export class EventoParticipante extends Model {
   @Column
   participanteId!: number;
 }
+

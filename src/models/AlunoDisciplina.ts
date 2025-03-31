@@ -1,14 +1,17 @@
-import { Table, Column, Model, PrimaryKey, AutoIncrement, ForeignKey } from 'sequelize-typescript';
+import { 
+Table, 
+Column, 
+Model, 
+ForeignKey } from 'sequelize-typescript';
 import { Aluno } from './Aluno';
 import { Disciplina } from './Disciplina';
 
-@Table
+@Table({
+  tableName: 'aluno_disciplinas',
+  timestamps: true,
+  paranoid: true
+})
 export class AlunoDisciplina extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  id!: number;
-
   @ForeignKey(() => Aluno)
   @Column
   alunoId!: number;
