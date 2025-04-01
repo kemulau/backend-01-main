@@ -2,26 +2,24 @@ import {
   Table, 
   Column, 
   Model, 
-  PrimaryKey, 
-  AutoIncrement, 
-  AllowNull } from 'sequelize-typescript';
+  ForeignKey, 
+  PrimaryKey,
+  AutoIncrement,
+  HasMany
+ } from 'sequelize-typescript';
+  import { Participante } from './Participante';
+  import { EventoParticipante } from './EventoParticipante';
 
-@Table({
-  tableName: 'eventos',
-  timestamps: true,
-  paranoid: true
-})
+@Table
 export class Evento extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
   id!: number;
 
-  @AllowNull(false)
   @Column
   nome!: string;
 
-  @AllowNull(false)
-  @Column
-  data!: string;
+  @HasMany(() => EventoParticipante)
+  participantes!: Participante[];
 }

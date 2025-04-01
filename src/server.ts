@@ -14,7 +14,7 @@ const app = express(); // 💡 aqui é onde o app precisa estar definido
 app.use(express.json());
 app.use(eventoRoutes); // usa suas rotas
 
-const server = express();
+export const server = express();
 
 server.use(cors());
 conectaBanco();
@@ -39,7 +39,11 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 server.use(errorHandler);
 
 // Iniciar o servidor e exibir a porta no console
-const port = process.env.PORT || 3306; // Defina uma porta padrão se não estiver no .env
-server.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
-});
+if (require.main === module) {
+    const port = process.env.PORT || 5001;
+    server.listen(port, () => {
+      console.log(`Servidor rodando na porta ${port}`);
+    });
+  }
+  
+  export default server;

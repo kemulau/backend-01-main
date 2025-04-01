@@ -1,28 +1,17 @@
-import { 
-Table, 
-Column, 
-Model, 
-PrimaryKey, 
-AutoIncrement, 
-AllowNull } from 'sequelize-typescript';
+import { Table, Column, Model, PrimaryKey, AutoIncrement, HasMany } from 'sequelize-typescript';
+import { Evento } from './Evento';
+import { EventoParticipante } from './EventoParticipante';
 
-@Table({
-  tableName: 'participantes',
-  timestamps: true,
-  paranoid: true
-})
+@Table
 export class Participante extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
   id!: number;
 
-  @AllowNull(false)
   @Column
   nome!: string;
 
-  @AllowNull(false)
-  @Column
-  email!: string;
+  @HasMany(() => EventoParticipante)
+  eventos!: Evento[]; 
 }
-  

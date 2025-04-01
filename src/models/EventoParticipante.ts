@@ -1,16 +1,8 @@
-import { 
-Table, 
-Column, 
-Model, 
-ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, ForeignKey } from 'sequelize-typescript';
 import { Evento } from './Evento';
 import { Participante } from './Participante';
 
-@Table({
-  tableName: 'evento_participantes',
-  timestamps: true,
-  paranoid: true
-})
+@Table
 export class EventoParticipante extends Model {
   @ForeignKey(() => Evento)
   @Column
@@ -20,4 +12,3 @@ export class EventoParticipante extends Model {
   @Column
   participanteId!: number;
 }
-

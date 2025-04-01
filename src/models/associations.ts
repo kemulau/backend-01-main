@@ -5,6 +5,7 @@ import { Evento } from './Evento';
 import { Participante } from './Participante';
 import  {EventoParticipante}  from './EventoParticipante';
 
+
 Aluno.belongsToMany(Disciplina, {
     through: AlunoDisciplina,
     foreignKey:"alunoId"
@@ -15,7 +16,16 @@ Disciplina.belongsToMany(Aluno, {
     foreignKey: "disciplinaId"
 });
 
-console.log("relações entre as models configuradas!");
+Evento.belongsToMany(Participante, {
+    through: 'EventoParticipantes',
+    foreignKey: 'eventoId',
+  });
+  
+  Participante.belongsToMany(Evento, {
+    through: 'EventoParticipantes',
+    foreignKey: 'participanteId',
+  });
+  
 
-Evento.belongsToMany(Participante, { through: EventoParticipante });
-Participante.belongsToMany(Evento, { through: EventoParticipante });
+  console.log("relações entre as models configuradas!");
+
