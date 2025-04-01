@@ -31,10 +31,10 @@ export const cadastrarDisciplina = async (req: Request, res: Response): Promise<
 
 export const atualizarDisciplina = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { disciplinaID } = req.params;
+    const { id } = req.params;
     const dadosAtualizados = req.body; 
 
-    const disciplina = await Disciplina.findByPk(disciplinaID);
+    const disciplina = await Disciplina.findByPk(id);
     if (!disciplina) {
       res.status(404).json({ error: "Aluno não encontrado." }); return
     }
@@ -86,5 +86,6 @@ export const buscarDisciplinaPorId = async (req: Request, res: Response) => {
     return res.status(500).json({ mensagem: 'Erro ao buscar disciplina.', erro });
   }
 };
+
 
   

@@ -6,16 +6,18 @@ import { Participante } from './Participante';
 import  {EventoParticipante}  from './EventoParticipante';
 
 
-Aluno.belongsToMany(Disciplina, {
-    through: AlunoDisciplina,
-    foreignKey:"alunoId"
-});
-
-Disciplina.belongsToMany(Aluno, {
-    through: AlunoDisciplina,
-    foreignKey: "disciplinaId"
-});
-
+Aluno.belongsToMany(Disciplina, { 
+    through: AlunoDisciplina, 
+    foreignKey: 'alunoId', 
+    otherKey: 'disciplinaId' 
+  });
+  
+  Disciplina.belongsToMany(Aluno, { 
+    through: AlunoDisciplina, 
+    foreignKey: 'disciplinaId', 
+    otherKey: 'alunoId' 
+  });
+    
 Evento.belongsToMany(Participante, {
     through: 'EventoParticipantes',
     foreignKey: 'eventoId',

@@ -28,6 +28,6 @@ router.delete('/disciplinas/:id', deletarDisciplina);
 router.get('/disciplinas/:id', buscarDisciplinaPorId);
 router.post('/cadastrarDisciplina', cadastrarDisciplina);
 router.post('/vincularAlunoDisciplina', vincularAlunoDisciplina);
-router.put('/atualizarDisciplina/:discilinaId', atualizarDisciplina);
+router.put('/atualizarDisciplina/:id', atualizarDisciplina);
 
 export default router;
