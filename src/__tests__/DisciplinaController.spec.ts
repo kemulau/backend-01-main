@@ -6,7 +6,6 @@ describe('Testes do DisciplinaController', () => {
   let disciplinaId: number;
 
   beforeAll(async () => {
-
     const response = await request(server)
       .post('/cadastrarDisciplina')
       .send({ nome: 'Mineração de Dados' });
