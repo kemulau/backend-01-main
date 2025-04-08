@@ -41,3 +41,7 @@ npm run start-dev    # Inicia com nodemon e ts-node
 - **dotenv** – Gerencia variáveis de ambiente
 
 ---
+
+
+Atividade Pair Programming, todos os testes ok (alan e kemuly ❤)
+
