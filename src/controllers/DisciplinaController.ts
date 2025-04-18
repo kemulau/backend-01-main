@@ -1,49 +1,52 @@
 import { Request, Response } from "express";
 import { Aluno } from "../models/Aluno";
+import { Nota } from "../models/Notas";
+import { Presenca } from "../models/Presenca";
 import { AlunoDisciplina } from "../models/AlunoDisciplina";
 import { Disciplina } from "../models/Disciplina";
 
 export const cadastrarDisciplina = async (req: Request, res: Response): Promise<void> => {
-    const { nome } = req.body;
-  
-    if (nome) {
-      let disciplinaExistente = await Disciplina.findOne({ where: { nome } });
-  
-      if (!disciplinaExistente) {
-        let novaDisciplina = await Disciplina.create({ nome });
-  
-        res.status(201);
-         res.json({
-          message: "Disciplina cadastrada com sucesso.",
-          novaDisciplina
-        });
-        return
+  const { nome } = req.body;
 
-      } else {
-         res.status(400).json({ error: "Nome da disciplina já existe." });
-         return
-      }
+  if (!nome) {
+    res.status(400).json({ error: "Nome da disciplina não enviado." });
+    return;
+  }
+
+  try {
+    const existente = await Disciplina.findOne({ where: { nome } });
+
+    if (existente) {
+      res.status(400).json({ error: "Nome da disciplina já existe." });
+      return;
     }
-  
-     res.status(400).json({ error: "Nome da disciplina não enviado." });
-     return
-    };
+
+    const novaDisciplina = await Disciplina.create({ nome });
+    res.status(201).json({
+      message: "Disciplina cadastrada com sucesso.",
+      novaDisciplina
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao cadastrar disciplina.", details: error });
+  }
+};
 
 export const atualizarDisciplina = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const dadosAtualizados = req.body; 
+  const { id } = req.params;
+  const dadosAtualizados = req.body;
 
+  try {
     const disciplina = await Disciplina.findByPk(id);
     if (!disciplina) {
-      res.status(404).json({ error: "Aluno não encontrado." }); return
+      res.status(404).json({ error: "Disciplina não encontrada." });
+      return;
     }
 
     await disciplina.update(dadosAtualizados, { fields: Object.keys(dadosAtualizados) });
 
-     res.status(200).json({ message: "Disciplina atualizada com sucesso.", disciplina });return
+    res.status(200).json({ message: "Disciplina atualizada com sucesso.", disciplina });
   } catch (error) {
-    res.status(500).json({ message: "Erro ao atualizar Disciplina.", error });
+    res.status(500).json({ error: "Erro ao atualizar disciplina.", details: error });
   }
 };
 
@@ -51,23 +54,21 @@ export const deletarDisciplina = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    // Verifica se a disciplina possui alunos matriculados
     const matriculas = await AlunoDisciplina.findOne({ where: { disciplinaId: id } });
 
     if (matriculas) {
       return res.status(400).json({ mensagem: 'Disciplina possui alunos matriculados e não pode ser excluída.' });
     }
 
-    // Exclui a disciplina se não houver alunos matriculados
-    const resultado = await Disciplina.destroy({ where: { id } });
+    const deletado = await Disciplina.destroy({ where: { id } });
 
-    if (resultado) {
-      return res.status(200).json({ mensagem: 'Disciplina excluída com sucesso.' });
+    if (deletado) {
+      res.status(200).json({ mensagem: 'Disciplina excluída com sucesso.' });
     } else {
-      return res.status(404).json({ mensagem: 'Disciplina não encontrada.' });
+      res.status(404).json({ mensagem: 'Disciplina não encontrada.' });
     }
-  } catch (erro) {
-    return res.status(500).json({ mensagem: 'Erro ao excluir disciplina.', erro });
+  } catch (error) {
+    res.status(500).json({ mensagem: 'Erro ao excluir disciplina.', error });
   }
 };
 
@@ -87,5 +88,51 @@ export const buscarDisciplinaPorId = async (req: Request, res: Response) => {
   }
 };
 
+export const alunosReprovados = async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-  
+  try {
+    const notas = await Nota.findAll({ where: { disciplinaId: Number(id) } });
+    const presencas = await Presenca.findAll({ where: { disciplinaId: Number(id) } });
+
+    if (!notas.length && !presencas.length) {
+      return res.status(404).json({ mensagem: 'Nenhum dado de nota ou presença encontrado.' });
+    }
+
+    const alunosMap = new Map<number, { notas: number[]; total: number; presentes: number }>();
+
+    for (const nota of notas) {
+      if (!alunosMap.has(nota.alunoId)) {
+        alunosMap.set(nota.alunoId, { notas: [], total: 0, presentes: 0 });
+      }
+      alunosMap.get(nota.alunoId)!.notas.push(Number(nota.nota));
+    }
+
+    for (const presenca of presencas) {
+      if (!alunosMap.has(presenca.alunoId)) {
+        alunosMap.set(presenca.alunoId, { notas: [], total: 0, presentes: 0 });
+      }
+      const alunoData = alunosMap.get(presenca.alunoId)!;
+      alunoData.total += 1;
+      if (presenca.presente) alunoData.presentes += 1;
+    }
+
+    const reprovadosIds = Array.from(alunosMap.entries())
+      .filter(([_, dados]) => {
+        const media = dados.notas.length ? (dados.notas.reduce((a, b) => a + b, 0) / dados.notas.length) : 0;
+        const frequencia = dados.total ? (dados.presentes / dados.total) * 100 : 0;
+        return media < 7 || frequencia < 75;
+      })
+      .map(([alunoId]) => alunoId);
+
+    if (!reprovadosIds.length) {
+      return res.status(200).json([]);
+    }
+
+    const alunos = await Aluno.findAll({ where: { id: reprovadosIds } });
+
+    return res.status(200).json(alunos);
+  } catch (error) {
+    return res.status(500).json({ error: 'Erro ao buscar reprovados.', details: error });
+  }
+};

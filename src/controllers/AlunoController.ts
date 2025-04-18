@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { Aluno } from "../models/Aluno";
+import { Nota } from '../models/Notas';
+import { Presenca } from '../models/Presenca';
+import { Disciplina } from '../models/Disciplina';
 import { AlunoDisciplina } from "../models/AlunoDisciplina";
 
 export const cadastrarAluno = async (req: Request, res: Response): Promise<void> => {
@@ -77,3 +80,136 @@ export const atualizarAluno = async (req: Request, res: Response): Promise<void>
       return res.status(500).json({ mensagem: 'Erro ao buscar aluno.', erro });
     }
   };
+
+  export const listarNotasComMedia = async (req: Request, res: Response) => {
+    const { id } = req.params;
+  
+    try {
+      const notas = await Nota.findAll({
+        where: { alunoId: Number(id) },
+        include: [Disciplina],
+      });
+  
+      const resultado: { disciplina: string; notas: number[]; media: number }[] = [];
+  
+      const disciplinasMap = new Map<number, { disciplina: string; notas: number[] }>();
+  
+      notas.forEach((nota) => {
+        const disciplinaId = nota.disciplinaId;
+        const nomeDisciplina = nota.disciplina?.nome || 'Desconhecida';
+  
+        if (!disciplinasMap.has(disciplinaId)) {
+          disciplinasMap.set(disciplinaId, { disciplina: nomeDisciplina, notas: [] });
+        }
+  
+        disciplinasMap.get(disciplinaId)?.notas.push(Number(nota.nota));
+      });
+  
+      disciplinasMap.forEach((value) => {
+        const media = value.notas.reduce((acc, curr) => acc + curr, 0) / value.notas.length;
+        resultado.push({ ...value, media });
+      });
+  
+      return res.json(resultado);
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro ao buscar notas.' });
+    }
+  };
+
+  export const percentualPresenca = async (req: Request, res: Response) => {
+    const { id } = req.params;
+  
+    try {
+      const presencas = await Presenca.findAll({
+        where: { alunoId: Number(id) },
+        include: [Disciplina],
+      });
+  
+      const resultado: { disciplina: string; percentual: string }[] = [];
+  
+      const disciplinasMap = new Map<number, { disciplina: string; total: number; presentes: number }>();
+  
+      presencas.forEach((presenca) => {
+        const disciplinaId = presenca.disciplinaId;
+        const nomeDisciplina = presenca.disciplina?.nome || 'Desconhecida';
+  
+        if (!disciplinasMap.has(disciplinaId)) {
+          disciplinasMap.set(disciplinaId, { disciplina: nomeDisciplina, total: 0, presentes: 0 });
+        }
+  
+        const data = disciplinasMap.get(disciplinaId)!;
+        data.total += 1;
+        if (presenca.presente) data.presentes += 1;
+      });
+  
+      disciplinasMap.forEach((value) => {
+        const percentual = ((value.presentes / value.total) * 100).toFixed(1) + '%';
+        resultado.push({ disciplina: value.disciplina, percentual });
+      });
+  
+      return res.json(resultado);
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro ao calcular presença.' });
+    }
+  };
+
+  export const situacaoAluno = async (req: Request, res: Response) => {
+    const { id } = req.params;
+  
+    try {
+      const notas = await Nota.findAll({
+        where: { alunoId: Number(id) },
+        include: [Disciplina],
+      });
+  
+      const presencas = await Presenca.findAll({ where: { alunoId: Number(id) } });
+  
+      const resultado: {
+        disciplina: string;
+        media: number;
+        presenca: number;
+        status: string;
+      }[] = [];
+  
+      const mapaNotas = new Map<number, number[]>();
+      const mapaPresencas = new Map<number, { total: number; presentes: number }>();
+  
+      notas.forEach((nota) => {
+        if (!mapaNotas.has(nota.disciplinaId)) mapaNotas.set(nota.disciplinaId, []);
+        mapaNotas.get(nota.disciplinaId)!.push(Number(nota.nota));
+      });
+  
+      presencas.forEach((p) => {
+        if (!mapaPresencas.has(p.disciplinaId)) {
+          mapaPresencas.set(p.disciplinaId, { total: 0, presentes: 0 });
+        }
+        const data = mapaPresencas.get(p.disciplinaId)!;
+        data.total += 1;
+        if (p.presente) data.presentes += 1;
+      });
+  
+      mapaNotas.forEach((notasArr, disciplinaId) => {
+        const media = notasArr.reduce((a, b) => a + b, 0) / notasArr.length;
+        const presencaData = mapaPresencas.get(disciplinaId);
+        const presenca = presencaData
+          ? (presencaData.presentes / presencaData.total) * 100
+          : 0;
+  
+        const status = media >= 7 && presenca >= 75 ? 'Aprovado' : 'Reprovado';
+        const nome = notas.find(n => n.disciplinaId === disciplinaId)?.disciplina?.nome || 'Desconhecida';
+  
+        resultado.push({
+          disciplina: nome,
+          media: Number(media.toFixed(2)),
+          presenca: Number(presenca.toFixed(1)),
+          status
+        });
+      });
+  
+      return res.json(resultado);
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro ao verificar situação.' });
+    }
+  };
+  
+  

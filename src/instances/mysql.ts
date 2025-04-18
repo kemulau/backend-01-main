@@ -3,6 +3,9 @@ import { SequelizeOptions } from 'sequelize-typescript';
 import dotenv from 'dotenv';
 import { Aluno } from '../models/Aluno';
 import { Disciplina } from '../models/Disciplina';
+import { Nota } from '../models/Notas';
+import { Curso } from '../models/Curso';
+import { Presenca } from '../models/Presenca';
 import { AlunoDisciplina } from '../models/AlunoDisciplina';
 import {Evento} from '../models/Evento';
 import {Participante} from '../models/Participante';
@@ -18,7 +21,7 @@ const dbConfig: SequelizeOptions = {
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DB,
-  models: [Aluno, Disciplina, AlunoDisciplina, Evento, Participante, EventoParticipante],
+  models: [Aluno, Disciplina, AlunoDisciplina, Evento, Participante, EventoParticipante,  Nota, Presenca ],
   logging: false,
 };
 

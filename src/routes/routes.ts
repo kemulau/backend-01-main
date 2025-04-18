@@ -4,12 +4,17 @@ cadastrarAluno,
 listarAlunos, 
 atualizarAluno,
 deletarAluno,
-buscarAlunoPorId } from '../controllers/AlunoController';
+buscarAlunoPorId,
+percentualPresenca,
+listarNotasComMedia,
+situacaoAluno } from '../controllers/AlunoController';
 import { 
 atualizarDisciplina,
 cadastrarDisciplina,
 deletarDisciplina,
-buscarDisciplinaPorId } from '../controllers/DisciplinaController';
+buscarDisciplinaPorId,
+alunosReprovados
+} from '../controllers/DisciplinaController';
 import { 
 listarDisciplinasDoAluno,
 vincularAlunoDisciplina } from '../controllers/AlunoDisciplinaController';
@@ -29,5 +34,12 @@ router.get('/disciplinas/:id', buscarDisciplinaPorId);
 router.post('/cadastrarDisciplina', cadastrarDisciplina);
 router.post('/vincularAlunoDisciplina', vincularAlunoDisciplina);
 router.put('/atualizarDisciplina/:id', atualizarDisciplina);
+
+router.get('/alunos/:id/notas', listarNotasComMedia);
+router.get('/alunos/:id/presencas', percentualPresenca);
+router.get('/alunos/:id/situacao', situacaoAluno);
+
+
+router.get('/disciplinas/:id/reprovados', alunosReprovados);
 
 export default router;

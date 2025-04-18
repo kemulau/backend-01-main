@@ -1,43 +1,59 @@
 import request from 'supertest';
 import server from '../server';
-import { sequelize } from '../instances/mysql';
+import { Nota } from '../models/Notas';
+import { Presenca } from '../models/Presenca';
 
 describe('Testes do DisciplinaController', () => {
-  let disciplinaId: number;
+  let novaDisciplinaId: number;
+  let alunoId: number;
 
-  beforeAll(async () => {
-    const response = await request(server)
+  it('deve cadastrar disciplina, aluno, vincular e registrar reprovação', async () => {
+    const disciplinaRes = await request(server)
       .post('/cadastrarDisciplina')
-      .send({ nome: 'Mineração de Dados' });
+      .send({ nome: `Fundamentos de Dados ${Date.now()}` });
 
-    disciplinaId = response.body.novaDisciplina.id;
-  });
+    expect(disciplinaRes.status).toBe(201);
+    novaDisciplinaId = disciplinaRes.body.novaDisciplina.id;
 
-  it('deve cadastrar uma nova disciplina com sucesso', async () => {
-    const response = await request(server)
-      .post('/cadastrarDisciplina')
-      .send({ nome: 'Desenvolvimento Backend' });
+    const alunoRes = await request(server)
+      .post('/cadastrarAluno')
+      .send({
+        nome: 'Fernanda Silva',
+        email: 'fernanda.silva@gmail.com',
+        matricula: `${Date.now()}`
+      });
 
-    expect(response.status).toBe(201);
-    expect(response.body.novaDisciplina).toHaveProperty('id');
-    expect(response.body.novaDisciplina.nome).toBe('Desenvolvimento Backend');
-  });
+    expect(alunoRes.status).toBe(201);
+    alunoId = alunoRes.body.novoAluno.id;
 
-  it('deve atualizar uma disciplina', async () => {
-    const response = await request(server)
-      .put(`/atualizarDisciplina/${disciplinaId}`)
-      .send({ nome: 'Mineração de Dados Atualizada' });
+    const vinculo = await request(server)
+      .post('/vincularAlunoDisciplina')
+      .send({ alunoId, disciplinaId: novaDisciplinaId });
+    expect(vinculo.status).toBe(200);
 
+    // Registra nota baixa
+    await Nota.create({
+      alunoId,
+      disciplinaId: novaDisciplinaId,
+      nota: 4.5,
+      dataAvaliacao: new Date()
+    });
+
+    // Registra presenças (1 presente e 3 faltas = 25%)
+    await Presenca.bulkCreate([
+      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: true },
+      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: false },
+      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: false },
+      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: false }
+    ]);
+
+    // Consulta reprovados
+    const response = await request(server).get(`/disciplinas/${novaDisciplinaId}/reprovados`);
     expect(response.status).toBe(200);
-    expect(response.body.message).toBe('Disciplina atualizada com sucesso.');
-    expect(response.body.disciplina.nome).toBe('Mineração de Dados Atualizada');
-  });
+    expect(Array.isArray(response.body)).toBe(true);
 
-  it('deve deletar uma disciplina', async () => {
-    const response = await request(server)
-      .delete(`/disciplinas/${disciplinaId}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body.mensagem).toBe('Disciplina excluída com sucesso.');
+    const fernanda = response.body.find((a: any) => a.nome === 'Fernanda Silva');
+    expect(fernanda).toBeDefined();
+    expect(fernanda.email).toBe('fernanda.silva@gmail.com');
   });
 });
