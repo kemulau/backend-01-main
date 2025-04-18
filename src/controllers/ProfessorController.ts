@@ -3,7 +3,14 @@ import { Professor } from "../models/Professor";
 
 export const criarProfessor = async (req: Request, res: Response) => {
   try {
-    const professor = await Professor.create(req.body);
+    const { nome, email, formacao } = req.body;
+
+    const professor = await Professor.create({
+      nome,
+      email,
+      formacao
+    });
+
     return res.status(201).json({ message: "Professor criado com sucesso.", professor });
   } catch (error) {
     return res.status(500).json({ error: "Erro ao criar professor." });
@@ -37,11 +44,14 @@ export const buscarProfessorPorId = async (req: Request, res: Response) => {
 export const atualizarProfessor = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { nome, email, formacao } = req.body;
+
     const professor = await Professor.findByPk(id);
     if (!professor) return res.status(404).json({ error: "Professor não encontrado." });
 
-    await professor.update(req.body);
-    return res.json({ message: "Professor atualizado.", professor });
+    await professor.update({ nome, email, formacao });
+
+    return res.json({ message: "Professor atualizado com sucesso.", professor });
   } catch (error) {
     return res.status(500).json({ error: "Erro ao atualizar professor." });
   }
@@ -51,6 +61,7 @@ export const deletarProfessor = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const excluido = await Professor.destroy({ where: { id } });
+
     if (!excluido) return res.status(404).json({ error: "Professor não encontrado." });
 
     return res.json({ message: "Professor deletado com sucesso." });

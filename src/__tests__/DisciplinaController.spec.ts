@@ -1,6 +1,6 @@
 import request from 'supertest';
 import server from '../server';
-import { Nota } from '../models/Notas';
+import { Nota } from '../models/Nota';
 import { Presenca } from '../models/Presenca';
 
 describe('Testes do DisciplinaController', () => {

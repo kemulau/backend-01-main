@@ -3,7 +3,7 @@ import { SequelizeOptions } from 'sequelize-typescript';
 import dotenv from 'dotenv';
 import { Aluno } from '../models/Aluno';
 import { Disciplina } from '../models/Disciplina';
-import { Nota } from '../models/Notas';
+import { Nota } from '../models/Nota';
 import { Curso } from '../models/Curso';
 import { Presenca } from '../models/Presenca';
 import { AlunoDisciplina } from '../models/AlunoDisciplina';

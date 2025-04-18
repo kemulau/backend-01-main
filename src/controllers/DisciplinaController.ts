@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Aluno } from "../models/Aluno";
-import { Nota } from "../models/Notas";
+import { Nota } from "../models/Nota";
 import { Presenca } from "../models/Presenca";
 import { AlunoDisciplina } from "../models/AlunoDisciplina";
 import { Disciplina } from "../models/Disciplina";
