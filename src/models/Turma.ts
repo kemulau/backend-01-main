@@ -17,6 +17,6 @@ export class Turma extends Model {
   @Column
   id_curso!: number;
 
-  @BelongsTo(() => Curso)
+  @BelongsTo(() => Curso, { foreignKey: 'id_curso' }) // <- ESSA LINHA É ESSENCIAL
   curso!: Curso;
 }

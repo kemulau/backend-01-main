@@ -1,19 +1,20 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({
-    timestamps: true,
-    paranoid: true
+  tableName: 'professores',
+  timestamps: true,
+  paranoid: true
 })
 export class Professor extends Model {
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, allowNull: false })
   nome!: string;
 
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, allowNull: false, unique: true })
   email!: string;
 
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, allowNull: false, unique: true })
   matricula!: string;
 
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING, allowNull: false })
   senha!: string;
 }

@@ -29,7 +29,7 @@ describe('Testes do AlunoController', () => {
 
   it('deve retornar lista de alunos', async () => {
     const response = await request(server).get('/listarTodosAlunos');
-    console.log('📋 Lista de alunos:', response.status, response.body.length);
+    console.log('Lista de alunos:', response.status, response.body.length);
     expect(response.status).toBe(200);
   });
 

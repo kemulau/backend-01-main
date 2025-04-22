@@ -10,6 +10,8 @@ import { AlunoDisciplina } from '../models/AlunoDisciplina';
 import {Evento} from '../models/Evento';
 import {Participante} from '../models/Participante';
 import {EventoParticipante} from '../models/EventoParticipante';
+import { Turma } from '../models/Turma';
+import { Professor } from '../models/Professor';
 
 
 dotenv.config();
@@ -21,8 +23,20 @@ const dbConfig: SequelizeOptions = {
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DB,
-  models: [Aluno, Disciplina, AlunoDisciplina, Evento, Participante, EventoParticipante,  Nota, Presenca ],
-  logging: false,
+  models: [
+    Aluno,
+    Disciplina,
+    AlunoDisciplina,
+    Evento,
+    Participante,
+    EventoParticipante,
+    Nota,
+    Presenca,
+    Curso,
+    Turma,
+    Professor,
+  ],
+    logging: false,
 };
 
 export const sequelize = new Sequelize(dbConfig);

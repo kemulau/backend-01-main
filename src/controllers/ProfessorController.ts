@@ -3,12 +3,13 @@ import { Professor } from "../models/Professor";
 
 export const criarProfessor = async (req: Request, res: Response) => {
   try {
-    const { nome, email, formacao } = req.body;
+    const { nome, email, matricula, senha } = req.body;
 
     const professor = await Professor.create({
       nome,
       email,
-      formacao
+      matricula,
+      senha
     });
 
     return res.status(201).json({ message: "Professor criado com sucesso.", professor });
@@ -44,12 +45,12 @@ export const buscarProfessorPorId = async (req: Request, res: Response) => {
 export const atualizarProfessor = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { nome, email, formacao } = req.body;
+    const { nome, email, matricula, senha } = req.body;
 
     const professor = await Professor.findByPk(id);
     if (!professor) return res.status(404).json({ error: "Professor não encontrado." });
 
-    await professor.update({ nome, email, formacao });
+    await professor.update({ nome, email, matricula, senha });
 
     return res.json({ message: "Professor atualizado com sucesso.", professor });
   } catch (error) {
