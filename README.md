@@ -25,6 +25,8 @@ npm run start-dev
 ```bash
 npm run start        # Inicia o servidor normalmente
 npm run start-dev    # Inicia com nodemon e ts-node
+npx jest --runInBand --detectOpenHandles    # Roda os testes série e detecte handles abertos
+
 ```
 
 ---
