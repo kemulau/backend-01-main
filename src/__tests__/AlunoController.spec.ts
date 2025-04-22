@@ -12,8 +12,10 @@ describe('Testes do AlunoController', () => {
         email: 'kemulau@gmail.com',
         matricula: '20230000',
       });
-    alunoId = response.body.novoAluno.id;
+
+    console.log('Cadastro aluno 1:', response.status, response.body);
     expect(response.status).toBe(201);
+    alunoId = response.body.novoAluno.id;
   });
 
   it('deve cadastrar outro aluno', async () => {
@@ -22,8 +24,10 @@ describe('Testes do AlunoController', () => {
       .send({
         nome: 'Joana Teste',
         email: 'joana.teste@gmail.com',
-        matricula: '20230001'
+        matricula: '20230001',
       });
+
+    console.log('Cadastro aluno 2:', response.status, response.body);
     expect(response.status).toBe(201);
   });
 
@@ -31,6 +35,7 @@ describe('Testes do AlunoController', () => {
     const response = await request(server).get('/listarTodosAlunos');
     console.log('Lista de alunos:', response.status, response.body.length);
     expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
   });
 
   it('deve atualizar um aluno', async () => {
@@ -41,24 +46,30 @@ describe('Testes do AlunoController', () => {
         email: 'atualizado@gmail.com',
         matricula: 'MAT002',
       });
-    console.log(' Atualizar aluno:', response.status, response.body);
+
+    console.log('Atualizar aluno:', response.status, response.body);
     expect(response.status).toBe(200);
+    expect(response.body.aluno.nome).toBe('Aluno Atualizado');
   });
 
   it('deve deletar um aluno', async () => {
     const response = await request(server)
       .delete(`/alunos/${alunoId}`);
+
     console.log('Deletar aluno:', response.status, response.body);
     expect(response.status).toBe(200);
+    expect(response.body.mensagem).toMatch(/excluído/i);
   });
 
   it('deve cadastrar presença e nota e retornar dados completos do aluno', async () => {
+    // Cadastra nova disciplina
     const disciplinaResponse = await request(server)
       .post('/cadastrarDisciplina')
       .send({ nome: `Lógica de Programação ${Date.now()}` });
 
     const disciplinaId = disciplinaResponse.body.novaDisciplina.id;
 
+    // Cadastra novo aluno
     const alunoResponse = await request(server)
       .post('/cadastrarAluno')
       .send({
@@ -66,33 +77,38 @@ describe('Testes do AlunoController', () => {
         email: 'lucas.prado@gmail.com',
         matricula: `${Date.now()}`
       });
+
     const novoAlunoId = alunoResponse.body.novoAluno.id;
 
-    await request(server)
+    // Vincula aluno à disciplina
+    const vinculo = await request(server)
       .post('/vincularAlunoDisciplina')
-      .send({
-        alunoId: novoAlunoId,
-        disciplinaId: disciplinaId
-      });
+      .send({ alunoId: novoAlunoId, disciplinaId });
 
-    await request(server)
-      .post('/cadastrarNota')
-      .send({
-        alunoId: novoAlunoId,
-        disciplinaId,
-        nota: 8.0
-      });
+    expect(vinculo.status).toBe(200);
 
+    // Cadastra nota
+    const nota = await request(server)
+      .post('/notas')
+      .send({ alunoId: novoAlunoId, disciplinaId, nota: 8.0 });
+
+    expect(nota.status).toBe(201);
+
+    // Registra 4 presenças
     const presencas = [true, true, true, true];
     for (let presente of presencas) {
       await request(server)
-        .post('/registrarPresenca')
-        .send({
-          alunoId: novoAlunoId,
-          disciplinaId,
-          presente
-        });
+        .post('/presencas')
+        .send({ alunoId: novoAlunoId, disciplinaId, presente });
     }
 
+    // Consulta situação final do aluno
+    const situacao = await request(server).get(`/alunos/${novoAlunoId}/situacao`);
+    expect(situacao.status).toBe(200);
+    expect(situacao.body.nome).toBe('Lucas Prado');
+    expect(situacao.body.email).toBe('lucas.prado@gmail.com');
+    expect(Array.isArray(situacao.body.situacoes)).toBe(true);
+    expect(situacao.body.situacoes.length).toBeGreaterThan(0);
+    expect(situacao.body.situacoes[0].status).toBe('Aprovado');
   });
 });

@@ -8,6 +8,14 @@ describe('Testes do DisciplinaController', () => {
   let novaDisciplinaId: number;
   let alunoId: number;
 
+  beforeAll(async () => {
+    await sequelize.sync({ force: true }); // recria todas as tabelas no banco
+  });
+
+  afterAll(async () => {
+    await sequelize.close(); // encerra a conexão com o banco
+  });
+
   it('deve cadastrar disciplina, aluno, vincular e registrar reprovação', async () => {
     const disciplinaRes = await request(server)
       .post('/cadastrarDisciplina')
@@ -30,9 +38,9 @@ describe('Testes do DisciplinaController', () => {
     const vinculo = await request(server)
       .post('/vincularAlunoDisciplina')
       .send({ alunoId, disciplinaId: novaDisciplinaId });
-    expect(vinculo.status).toBe(200);
 
-    // Registra nota baixa
+      expect(vinculo.status).toBe(200);
+
     await Nota.create({
       alunoId,
       disciplinaId: novaDisciplinaId,

@@ -1,10 +1,21 @@
 import request from 'supertest';
 import server from '../server';
+import { sequelize } from '../instances/mysql';
 
 describe('Testes do PresencaController', () => {
   let alunoId: number;
   let disciplinaId: number;
   let presencaId: number;
+
+  // Garante as tabelas antes de rodar os testes
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
+  });
+
+  // Fecha a conexão depois dos testes
+  afterAll(async () => {
+    await sequelize.close();
+  });
 
   it('deve registrar uma presença para um aluno em uma disciplina', async () => {
     const alunoRes = await request(server).post('/cadastrarAluno').send({
@@ -13,12 +24,14 @@ describe('Testes do PresencaController', () => {
       matricula: 'T1234567',
     });
     expect(alunoRes.status).toBe(201);
+    expect(alunoRes.body.novoAluno).toBeDefined();
     alunoId = alunoRes.body.novoAluno.id;
 
     const disciplinaRes = await request(server).post('/cadastrarDisciplina').send({
       nome: 'Engenharia de Software',
     });
     expect(disciplinaRes.status).toBe(201);
+    expect(disciplinaRes.body.novaDisciplina).toBeDefined();
     disciplinaId = disciplinaRes.body.novaDisciplina.id;
 
     const presencaRes = await request(server).post('/presencas').send({
@@ -56,9 +69,9 @@ describe('Testes do PresencaController', () => {
     const res = await request(server).delete(`/presencas/${presencaId}`);
     expect(res.status).toBe(200);
     expect(res.body.message || res.body.mensagem).toBe("Presença deletada com sucesso.");
-  
+
     const confirm = await request(server).get('/presencas');
     const apagada = confirm.body.find((p: any) => p.id === presencaId);
     expect(apagada).toBeUndefined();
-  });  
+  });
 });

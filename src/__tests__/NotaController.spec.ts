@@ -1,10 +1,21 @@
 import request from 'supertest';
 import server from '../server';
+import { sequelize } from '../instances/mysql';
 
 describe('Testes do NotaController', () => {
   let notaId: number;
   let alunoId: number;
   let disciplinaId: number;
+
+  // Garante que as tabelas estão sincronizadas antes dos testes
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
+  });
+
+  // Fecha a conexão com o banco após todos os testes
+  afterAll(async () => {
+    await sequelize.close();
+  });
 
   it('deve criar uma nota para um aluno em uma disciplina', async () => {
     const alunoData = {

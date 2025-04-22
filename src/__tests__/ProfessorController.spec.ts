@@ -1,8 +1,17 @@
 import request from 'supertest';
 import server from '../server';
+import { sequelize } from '../instances/mysql';
 
 describe('Testes do ProfessorController', () => {
   let professorId: number;
+
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
+  });
 
   it('deve criar um novo professor', async () => {
     const novoProfessor = {
@@ -33,6 +42,7 @@ describe('Testes do ProfessorController', () => {
     console.log('Listar professores:', res.status, res.body.length);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.some((p: any) => p.id === professorId)).toBe(true);
   });
 
   it('deve atualizar os dados de um professor', async () => {
@@ -48,6 +58,7 @@ describe('Testes do ProfessorController', () => {
     expect(res.status).toBe(200);
     expect(res.body.professor).toBeDefined();
     expect(res.body.professor.nome).toBe(atualizacao.nome);
+    expect(res.body.professor.email).toBe(atualizacao.email);
   });
 
   it('deve deletar um professor', async () => {

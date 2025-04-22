@@ -157,6 +157,9 @@ export const atualizarAluno = async (req: Request, res: Response): Promise<void>
     const { id } = req.params;
   
     try {
+      const aluno = await Aluno.findByPk(id);
+      if (!aluno) return res.status(404).json({ mensagem: 'Aluno não encontrado.' });
+  
       const notas = await Nota.findAll({
         where: { alunoId: Number(id) },
         include: [Disciplina],
@@ -206,10 +209,15 @@ export const atualizarAluno = async (req: Request, res: Response): Promise<void>
         });
       });
   
-      return res.json(resultado);
+      return res.status(200).json({
+        nome: aluno.nome,
+        email: aluno.email,
+        situacoes: resultado
+      });
     } catch (error) {
       return res.status(500).json({ error: 'Erro ao verificar situação.' });
     }
   };
+  
   
   
