@@ -5,24 +5,24 @@ import { Nota } from '../models/Nota';
 import { Presenca } from '../models/Presenca';
 
 describe('Testes do DisciplinaController', () => {
-  let novaDisciplinaId: number;
+  let disciplinaId: number;
   let alunoId: number;
 
   beforeAll(async () => {
-    await sequelize.sync({ force: true }); // recria todas as tabelas no banco
+    // recria todas as tabelas
+    await sequelize.sync({ force: true });
   });
 
   afterAll(async () => {
-    await sequelize.close(); // encerra a conexão com o banco
+    await sequelize.close();
   });
 
   it('deve cadastrar disciplina, aluno, vincular e registrar reprovação', async () => {
     const disciplinaRes = await request(server)
       .post('/cadastrarDisciplina')
       .send({ nome: `Fundamentos de Dados ${Date.now()}` });
-
     expect(disciplinaRes.status).toBe(201);
-    novaDisciplinaId = disciplinaRes.body.novaDisciplina.id;
+    disciplinaId = disciplinaRes.body.novaDisciplina.id;
 
     const alunoRes = await request(server)
       .post('/cadastrarAluno')
@@ -31,38 +31,57 @@ describe('Testes do DisciplinaController', () => {
         email: 'fernanda.silva@gmail.com',
         matricula: `${Date.now()}`
       });
-
     expect(alunoRes.status).toBe(201);
     alunoId = alunoRes.body.novoAluno.id;
 
-    const vinculo = await request(server)
+    const vinculoRes = await request(server)
       .post('/vincularAlunoDisciplina')
-      .send({ alunoId, disciplinaId: novaDisciplinaId });
-
-      expect(vinculo.status).toBe(200);
+      .send({ alunoId, disciplinaId });
+    expect(vinculoRes.status).toBe(200);
 
     await Nota.create({
       alunoId,
-      disciplinaId: novaDisciplinaId,
+      disciplinaId,
       nota: 4.5,
       dataAvaliacao: new Date()
     });
 
-    // Registra presenças (1 presente e 3 faltas = 25%)
     await Presenca.bulkCreate([
-      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: true },
-      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: false },
-      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: false },
-      { alunoId, disciplinaId: novaDisciplinaId, data: new Date(), presente: false }
+      { alunoId, disciplinaId, data: new Date(), presente: true },
+      { alunoId, disciplinaId, data: new Date(), presente: false },
+      { alunoId, disciplinaId, data: new Date(), presente: false },
+      { alunoId, disciplinaId, data: new Date(), presente: false }
     ]);
 
-    // Consulta reprovados
-    const response = await request(server).get(`/disciplinas/${novaDisciplinaId}/reprovados`);
-    expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true);
+    // busca reprovados
+    const reprovadosRes = await request(server)
+      .get(`/disciplinas/${disciplinaId}/reprovados`);
+    expect(reprovadosRes.status).toBe(200);
+    expect(Array.isArray(reprovadosRes.body)).toBe(true);
 
-    const fernanda = response.body.find((a: any) => a.nome === 'Fernanda Silva');
+    const fernanda = reprovadosRes.body.find((a: any) => a.nome === 'Fernanda Silva');
     expect(fernanda).toBeDefined();
     expect(fernanda.email).toBe('fernanda.silva@gmail.com');
+  });
+
+  it('não deve deletar disciplina com alunos vinculados (status 400)', async () => {
+    const res = await request(server)
+      .delete(`/disciplinas/${disciplinaId}`);
+    expect(res.status).toBe(400);
+    expect(res.body.mensagem).toMatch(/não pode ser excluída/i);
+  });
+
+  it('deve criar e deletar disciplina sem alunos vinculados', async () => {
+    // cria uma nova disciplina isolada para teste delete
+    const novoRes = await request(server)
+      .post('/cadastrarDisciplina')
+      .send({ nome: `Teste Exclusão ${Date.now()}` });
+    expect(novoRes.status).toBe(201);
+    const novaId = novoRes.body.novaDisciplina.id;
+
+    const delRes = await request(server)
+      .delete(`/disciplinas/${novaId}`);
+    expect(delRes.status).toBe(200);
+    expect(delRes.body.mensagem).toBe('Disciplina excluída com sucesso.');
   });
 });

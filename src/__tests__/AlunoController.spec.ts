@@ -13,7 +13,6 @@ describe('Testes do AlunoController', () => {
         matricula: '20230000',
       });
 
-    console.log('Cadastro aluno 1:', response.status, response.body);
     expect(response.status).toBe(201);
     alunoId = response.body.novoAluno.id;
   });
@@ -26,8 +25,6 @@ describe('Testes do AlunoController', () => {
         email: 'joana.teste@gmail.com',
         matricula: '20230001',
       });
-
-    console.log('Cadastro aluno 2:', response.status, response.body);
     expect(response.status).toBe(201);
   });
 
@@ -62,14 +59,12 @@ describe('Testes do AlunoController', () => {
   });
 
   it('deve cadastrar presença e nota e retornar dados completos do aluno', async () => {
-    // Cadastra nova disciplina
     const disciplinaResponse = await request(server)
       .post('/cadastrarDisciplina')
       .send({ nome: `Lógica de Programação ${Date.now()}` });
 
     const disciplinaId = disciplinaResponse.body.novaDisciplina.id;
 
-    // Cadastra novo aluno
     const alunoResponse = await request(server)
       .post('/cadastrarAluno')
       .send({
@@ -80,21 +75,18 @@ describe('Testes do AlunoController', () => {
 
     const novoAlunoId = alunoResponse.body.novoAluno.id;
 
-    // Vincula aluno à disciplina
     const vinculo = await request(server)
       .post('/vincularAlunoDisciplina')
       .send({ alunoId: novoAlunoId, disciplinaId });
 
     expect(vinculo.status).toBe(200);
 
-    // Cadastra nota
     const nota = await request(server)
       .post('/notas')
       .send({ alunoId: novoAlunoId, disciplinaId, nota: 8.0 });
 
     expect(nota.status).toBe(201);
 
-    // Registra 4 presenças
     const presencas = [true, true, true, true];
     for (let presente of presencas) {
       await request(server)
@@ -102,7 +94,6 @@ describe('Testes do AlunoController', () => {
         .send({ alunoId: novoAlunoId, disciplinaId, presente });
     }
 
-    // Consulta situação final do aluno
     const situacao = await request(server).get(`/alunos/${novoAlunoId}/situacao`);
     expect(situacao.status).toBe(200);
     expect(situacao.body.nome).toBe('Lucas Prado');

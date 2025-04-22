@@ -89,18 +89,25 @@ export const buscarDisciplinaPorId = async (req: Request, res: Response) => {
 };
 
 export const alunosReprovados = async (req: Request, res: Response) => {
+  // Extrai o ID da disciplina a partir dos parâmetros da rota
   const { id } = req.params;
 
   try {
+    // Busca todas as notas lançadas  e registros de presença para esta disciplina
     const notas = await Nota.findAll({ where: { disciplinaId: Number(id) } });
     const presencas = await Presenca.findAll({ where: { disciplinaId: Number(id) } });
 
+    // Se não houver registros nem de notas nem de presenças, retorna 404
     if (!notas.length && !presencas.length) {
       return res.status(404).json({ mensagem: 'Nenhum dado de nota ou presença encontrado.' });
     }
 
+    // Mapa para acumular, por aluno, suas notas e estatísticas de presença
+    // chave: alunoId
+    // valor: { notas: array de notas, total: qtd de registros, presentes: qtd de presenças verdadeiras }
     const alunosMap = new Map<number, { notas: number[]; total: number; presentes: number }>();
 
+    // Percorre todas as notas e adiciona ao array de notas do respectivo aluno
     for (const nota of notas) {
       if (!alunosMap.has(nota.alunoId)) {
         alunosMap.set(nota.alunoId, { notas: [], total: 0, presentes: 0 });
@@ -108,31 +115,49 @@ export const alunosReprovados = async (req: Request, res: Response) => {
       alunosMap.get(nota.alunoId)!.notas.push(Number(nota.nota));
     }
 
+    // Percorre todos os registros de presença e atualiza total e presentes para cada aluno
     for (const presenca of presencas) {
       if (!alunosMap.has(presenca.alunoId)) {
+        // Garante que alunos sem nota mas com presença também entrem no mapa
         alunosMap.set(presenca.alunoId, { notas: [], total: 0, presentes: 0 });
       }
       const alunoData = alunosMap.get(presenca.alunoId)!;
-      alunoData.total += 1;
-      if (presenca.presente) alunoData.presentes += 1;
+      alunoData.total += 1;                // incrementa o total de aulas registradas
+      if (presenca.presente) {
+        alunoData.presentes += 1;          // incrementa apenas se estiver marcado como presente
+      }
     }
 
+    // Filtra apenas os alunos que não atingiram média ≥ 7 ou presença ≥ 75%
     const reprovadosIds = Array.from(alunosMap.entries())
       .filter(([_, dados]) => {
-        const media = dados.notas.length ? (dados.notas.reduce((a, b) => a + b, 0) / dados.notas.length) : 0;
-        const frequencia = dados.total ? (dados.presentes / dados.total) * 100 : 0;
+        // Calcula a média das notas (0 se não houver nenhuma)
+        const media = dados.notas.length
+          ? dados.notas.reduce((a, b) => a + b, 0) / dados.notas.length
+          : 0;
+
+        // Calcula percentual de presença (0 se não houve registro)
+        const frequencia = dados.total
+          ? (dados.presentes / dados.total) * 100
+          : 0;
+
+        // Retorna true para quem reprovar em nota OU em frequência
         return media < 7 || frequencia < 75;
       })
-      .map(([alunoId]) => alunoId);
+      .map(([alunoId]) => alunoId);  // extrai só os IDs dos alunos reprovados
 
     if (!reprovadosIds.length) {
-      return res.status(200).json([]);
+      return res.status(200).json({ mensagem: 'Nenhum aluno reprovado'});
     }
 
+    // Busca os dados completos dos alunos reprovados (nome, email etc)
     const alunos = await Aluno.findAll({ where: { id: reprovadosIds } });
 
+    // Retorna lista de objetos Aluno
     return res.status(200).json(alunos);
+
   } catch (error) {
-    return res.status(500).json({ error: 'Erro ao buscar reprovados.', details: error });
+    return res
+      .status(500).json({ error: 'Erro ao buscar reprovados.', details: error });
   }
 };

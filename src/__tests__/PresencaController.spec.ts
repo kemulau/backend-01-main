@@ -7,12 +7,10 @@ describe('Testes do PresencaController', () => {
   let disciplinaId: number;
   let presencaId: number;
 
-  // Garante as tabelas antes de rodar os testes
   beforeAll(async () => {
     await sequelize.sync({ force: true });
   });
 
-  // Fecha a conexão depois dos testes
   afterAll(async () => {
     await sequelize.close();
   });

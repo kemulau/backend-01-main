@@ -7,12 +7,10 @@ describe('Testes do NotaController', () => {
   let alunoId: number;
   let disciplinaId: number;
 
-  // Garante que as tabelas estão sincronizadas antes dos testes
   beforeAll(async () => {
     await sequelize.sync({ force: true });
   });
 
-  // Fecha a conexão com o banco após todos os testes
   afterAll(async () => {
     await sequelize.close();
   });
