@@ -11,6 +11,7 @@ describe('Testes do AlunoController', () => {
         nome: 'Kemulau',
         email: 'kemulau@gmail.com',
         matricula: '20230000',
+        senha: 'kemulylokinha123'
       });
 
     expect(response.status).toBe(201);
@@ -24,6 +25,7 @@ describe('Testes do AlunoController', () => {
         nome: 'Joana Teste',
         email: 'joana.teste@gmail.com',
         matricula: '20230001',
+        senha: 'xadrez123'
       });
     expect(response.status).toBe(201);
   });
@@ -42,6 +44,7 @@ describe('Testes do AlunoController', () => {
         nome: 'Aluno Atualizado',
         email: 'atualizado@gmail.com',
         matricula: 'MAT002',
+        senha: 'aluno1234'
       });
 
     console.log('Atualizar aluno:', response.status, response.body);
@@ -70,7 +73,8 @@ describe('Testes do AlunoController', () => {
       .send({
         nome: 'Lucas Prado',
         email: 'lucas.prado@gmail.com',
-        matricula: `${Date.now()}`
+        matricula: `${Date.now()}`,
+        senha: 'lucas123'
       });
 
     const novoAlunoId = alunoResponse.body.novoAluno.id;

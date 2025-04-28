@@ -33,6 +33,10 @@ export class Aluno extends Model {
   @Column
   matricula!: string;
 
+  @AllowNull(false)
+  @Column
+  senha!: string; 
+
   @CreatedAt
   @Column
   createdAt!: Date;

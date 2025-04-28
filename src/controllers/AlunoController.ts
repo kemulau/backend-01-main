@@ -6,9 +6,9 @@ import { Disciplina } from '../models/Disciplina';
 import { AlunoDisciplina } from "../models/AlunoDisciplina";
 
 export const cadastrarAluno = async (req: Request, res: Response): Promise<void> => {
-    const { nome, email, matricula } = req.body; 
+    const { nome, email, matricula, senha } = req.body; 
 
-    let novoAluno = await Aluno.create({ nome, email, matricula });
+    let novoAluno = await Aluno.create({ nome, email, matricula, senha });
     res.status(201).json({
         message: "Aluno cadastrado", 
         novoAluno

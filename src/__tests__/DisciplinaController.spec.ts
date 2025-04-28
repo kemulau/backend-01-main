@@ -29,7 +29,8 @@ describe('Testes do DisciplinaController', () => {
       .send({
         nome: 'Fernanda Silva',
         email: 'fernanda.silva@gmail.com',
-        matricula: `${Date.now()}`
+        matricula: `${Date.now()}`,
+        senha: 'ferzinha123'
       });
     expect(alunoRes.status).toBe(201);
     alunoId = alunoRes.body.novoAluno.id;

@@ -20,6 +20,7 @@ describe('Testes do NotaController', () => {
       nome: 'Alice Morais',
       email: 'alice.morais@gmail.com',
       matricula: '20234567',
+      senha: 'alicinhadomal'
     };
 
     const alunoRes = await request(server).post('/cadastrarAluno').send(alunoData);

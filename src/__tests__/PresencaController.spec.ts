@@ -20,6 +20,7 @@ describe('Testes do PresencaController', () => {
       nome: 'Marcos Silva',
       email: 'marcos.silva@email.com',
       matricula: 'T1234567',
+      senha: 'marcos123'
     });
     expect(alunoRes.status).toBe(201);
     expect(alunoRes.body.novoAluno).toBeDefined();
