@@ -7,43 +7,39 @@ import { conectaBanco } from './instances/mysql';
 import "./models/associations";
 import eventoRoutes from './routes/eventos.routes';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, './../.env') }); // <- caminho corrigido
+const server = express();
 
-const app = express(); // 💡 aqui é onde o app precisa estar definido
-
-app.use(express.json());
-app.use(eventoRoutes); // usa suas rotas
-
-export const server = express();
-
+// Configurações
 server.use(cors());
-conectaBanco();
+server.use(express.json());
 server.use(express.static(path.join(__dirname, '../public')));
 
-// Definir o formato das requisições
-server.use(express.json()); // Usando JSON
+// Banco de dados
+conectaBanco();
 
-// Definir as rotas da API
+// Rotas
+server.use(eventoRoutes);
 server.use(apiRoutes);
 
-// Endpoint para caso o usuário acesse um caminho inexistente
+// 404
 server.use((req: Request, res: Response) => {
     res.status(404).json({ error: 'Endpoint não encontrado.' });
 });
 
 // Middleware de erro
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-    console.error(err); // Exibe o erro no console
+    console.error(err);
     res.status(400).json({ error: 'Ocorreu algum erro.' });
 };
 server.use(errorHandler);
 
-// Iniciar o servidor e exibir a porta no console
+// Start
 if (require.main === module) {
     const port = process.env.PORT || 5001;
     server.listen(port, () => {
-      console.log(`Servidor rodando na porta ${port}`);
+        console.log(`🚀 Servidor rodando na porta ${port}`);
     });
-  }
-  
-  export default server;
+}
+
+export default server;

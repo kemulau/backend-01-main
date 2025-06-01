@@ -12,6 +12,7 @@ Esta API oferece suporte completo às seguintes entidades e operações:
 - Registro de presença e nota por disciplina
 - Cálculo de média e percentual de presença
 - Situação final do aluno (Aprovado/Reprovado)
+- Envio de e-mail de boas-vindas no cadastro
 
 ### 🧑‍🏫 Professores
 - Cadastro, listagem, atualização e exclusão
@@ -43,12 +44,29 @@ Esta API oferece suporte completo às seguintes entidades e operações:
 ### 👤 Participantes
 - Gerenciamento de dados de participantes de eventos
 
+### 🔐 Autenticação e Autorização
+- Login com retorno de **token JWT**
+- Middleware de autenticação para proteger rotas privadas
+- Middleware de autorização para controle por tipo de usuário (`aluno` ou `professor`)
+
 ### 🔍 Relatórios e Cálculos
 - Alunos reprovados por nota ou frequência (`/disciplinas/:id/reprovados`)
 - Situação individual do aluno (`/alunos/:id/situacao`)
 - Médias e frequências por aluno
 
-  
+---
+
+## 📱 Frontend em Flutter
+
+Aplicação Flutter integrada à API com as seguintes funcionalidades:
+
+- Tela de **login** com autenticação via JWT
+- **Dashboard** com controle de acesso por tipo de usuário (aluno ou professor)
+- Listagem estilizada de alunos e professores
+- **Proteção de rotas**, armazenamento de token e logout
+- Interface visual com tema baseado nas cores do **IFPR**
+
+---
 
 ## 🎯 Como executar
 
@@ -69,12 +87,12 @@ npm run start-dev
 ## 🧪 Scripts disponíveis
 
 ```bash
-npm install express sequelize mysql2 sequelize-typescript cors dotenv # instala todas as dependêcias
-npm install --save-dev typescript ts-node-dev @types/express @types/node # Roda as dependências de desenvolvimento
-npm run start  # Inicia o servidor normalmente
-npm run start-dev # Inicia com nodemon e ts-node
-npx jest --runInBand --detectOpenHandles # Roda os testes em série e detecta handles abertos
-
+npm install express sequelize mysql2 sequelize-typescript cors dotenv
+npm install --save-dev typescript ts-node-dev @types/express @types/node
+npm run start                # Inicia o servidor normalmente
+npm run start-dev           # Inicia com nodemon e ts-node
+npx jest --runInBand --detectOpenHandles        # Executa os testes
+npx sequelize-cli db:seed:all --env development # Popula o banco com dados de exemplo
 ```
 
 ---
@@ -89,9 +107,14 @@ npx jest --runInBand --detectOpenHandles # Roda os testes em série e detecta ha
 - **ts-node** – Executa arquivos TypeScript diretamente no Node.js
 - **nodemon** – Reinicia o servidor automaticamente a cada alteração
 - **dotenv** – Gerencia variáveis de ambiente
+- **jsonwebtoken** – Utilizado para geração e validação de tokens JWT
+- **bcryptjs** – Para criptografar senhas
+- **nodemailer** – Envio de e-mails
+- **jest** – Testes automatizados
 
 ---
 
+## ❤️ Desenvolvimento
 
-Atividade Pair Programming, todos os testes ok (alan e kemuly ❤)
-
+Atividade de Pair Programming com testes 100% funcionais. (Alan e Kemuly ❤)   
+Desenvolvido com muito amor por: **Kemuly Lau** ❤

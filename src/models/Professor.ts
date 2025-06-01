@@ -1,4 +1,12 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  BeforeCreate,
+  BeforeUpdate
+} from 'sequelize-typescript';
+import bcrypt from 'bcrypt';
 
 @Table({
   tableName: 'professores',
@@ -17,4 +25,13 @@ export class Professor extends Model {
 
   @Column({ type: DataType.STRING, allowNull: false })
   senha!: string;
+
+  // 🔐 Hook para criptografar a senha automaticamente
+  @BeforeCreate
+  @BeforeUpdate
+  static async criptografarSenha(prof: Professor) {
+    if (prof.changed('senha')) {
+      prof.senha = await bcrypt.hash(prof.senha, 10);
+    }
+  }
 }

@@ -7,8 +7,11 @@ import {
   AllowNull,
   CreatedAt,
   UpdatedAt,
-  DeletedAt
+  DeletedAt,
+   BeforeCreate,
+  BeforeUpdate
 } from 'sequelize-typescript';
+import bcrypt from 'bcrypt';
 
 @Table({
   tableName: 'alunos',
@@ -48,4 +51,13 @@ export class Aluno extends Model {
   @DeletedAt
   @Column
   deletedAt!: Date;
+    // 🔐 Hook para criptografar senha antes de criar/atualizar
+  @BeforeCreate
+  @BeforeUpdate
+  static async criptografarSenha(aluno: Aluno) {
+    if (aluno.changed('senha')) {
+      aluno.senha = await bcrypt.hash(aluno.senha, 10);
+    }
+  }
 }
+

@@ -4,15 +4,24 @@ import { Nota } from '../models/Nota';
 import { Presenca } from '../models/Presenca';
 import { Disciplina } from '../models/Disciplina';
 import { AlunoDisciplina } from "../models/AlunoDisciplina";
+import { enviarEmail } from '../services/emailService';
+
 
 export const cadastrarAluno = async (req: Request, res: Response): Promise<void> => {
-    const { nome, email, matricula, senha } = req.body; 
+  const { nome, email, matricula, senha } = req.body;
 
-    let novoAluno = await Aluno.create({ nome, email, matricula, senha });
+  try {
+    const novoAluno = await Aluno.create({ nome, email, matricula, senha });
+    await enviarEmail(nome, email);
+
     res.status(201).json({
-        message: "Aluno cadastrado", 
-        novoAluno
+      message: "Aluno cadastrado com sucesso e e-mail enviado.",
+      novoAluno
     });
+  } catch (error) {
+    console.error("Erro ao cadastrar aluno:", error);
+    res.status(500).json({ message: "Erro ao cadastrar aluno.", error });
+  }
 };
 
 export const listarAlunos = async (req: Request, res: Response): Promise<void> => {
