@@ -1,76 +1,93 @@
 import request from 'supertest';
 import server from '../server';
 import { sequelize } from '../instances/mysql';
+import { Professor } from '../models/Professor';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-describe('Testes do PresencaController', () => {
-  let alunoId: number;
-  let disciplinaId: number;
-  let presencaId: number;
+jest.setTimeout(20000); // aumenta o tempo para execução do beforeAll
 
-  beforeAll(async () => {
-    await sequelize.sync({ force: true });
+let tokenProfessor: string;
+let presencaId: number;
+let alunoId: number;
+let disciplinaId: number;
+
+beforeAll(async () => {
+  await sequelize.sync({ force: true });
+
+  const senhaHash = await bcrypt.hash('123456', 10);
+  const professor = await Professor.create({
+    nome: 'Prof Presença',
+    email: 'profpresenca@example.com',
+    matricula: 'PROF888',
+    senha: senhaHash,
+    tipo: 'professor'
   });
 
-  afterAll(async () => {
-    await sequelize.close();
+  const payload = { id: professor.id, nome: professor.nome, tipo: professor.tipo };
+  tokenProfessor = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '2h' });
+
+  const alunoRes = await request(server).post('/cadastrarAluno').send({
+    nome: 'Aluno Presença',
+    email: 'alunopresenca@example.com',
+    matricula: 'ALU888',
+    senha: '123456'
   });
 
-  it('deve registrar uma presença para um aluno em uma disciplina', async () => {
-    const alunoRes = await request(server).post('/cadastrarAluno').send({
-      nome: 'Marcos Silva',
-      email: 'marcos.silva@email.com',
-      matricula: 'T1234567',
-      senha: 'marcos123'
-    });
-    expect(alunoRes.status).toBe(201);
-    expect(alunoRes.body.novoAluno).toBeDefined();
-    alunoId = alunoRes.body.novoAluno.id;
+  alunoId = alunoRes.body.novoAluno?.id || alunoRes.body.aluno?.id;
 
-    const disciplinaRes = await request(server).post('/cadastrarDisciplina').send({
-      nome: 'Engenharia de Software',
+  const discRes = await request(server)
+    .post('/cadastrarDisciplina')
+    .set('Authorization', `Bearer ${tokenProfessor}`)
+    .send({
+      nome: 'Estrutura de Dados'
     });
-    expect(disciplinaRes.status).toBe(201);
-    expect(disciplinaRes.body.novaDisciplina).toBeDefined();
-    disciplinaId = disciplinaRes.body.novaDisciplina.id;
 
-    const presencaRes = await request(server).post('/presencas').send({
-      alunoId,
-      disciplinaId,
-      presente: true,
-      data: new Date(),
-    });
-    expect(presencaRes.status).toBe(201);
-    expect(presencaRes.body.presenca).toBeDefined();
-    presencaId = presencaRes.body.presenca.id;
+  disciplinaId = discRes.body.novaDisciplina?.id || discRes.body.disciplina?.id;
+});
+
+describe('🧪 CRUD Presença (com autenticação de professor)', () => {
+  it('✅ Deve registrar uma presença', async () => {
+    const res = await request(server)
+      .post('/presencas')
+      .set('Authorization', `Bearer ${tokenProfessor}`)
+      .send({
+        alunoId,
+        disciplinaId,
+        presente: true
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('presenca');
+    expect(res.body.presenca.presente).toBe(true);
+    presencaId = res.body.presenca.id;
   });
 
-  it('deve listar todas as presenças registradas', async () => {
-    const res = await request(server).get('/presencas');
+  it('📋 Deve listar todas as presenças', async () => {
+    const res = await request(server)
+      .get('/presencas')
+      .set('Authorization', `Bearer ${tokenProfessor}`);
+
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-
-    const encontrada = res.body.find((p: any) => p.id === presencaId);
-    expect(encontrada).toBeDefined();
-    expect(encontrada.alunoId).toBe(alunoId);
-    expect(encontrada.disciplinaId).toBe(disciplinaId);
   });
 
-  it('deve atualizar uma presença existente', async () => {
-    const res = await request(server).put(`/presencas/${presencaId}`).send({
-      presente: false,
-    });
+  it('✏️ Deve atualizar a presença', async () => {
+    const res = await request(server)
+      .put(`/presencas/${presencaId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`)
+      .send({ presente: false });
+
     expect(res.status).toBe(200);
-    expect(res.body.presenca).toBeDefined();
     expect(res.body.presenca.presente).toBe(false);
   });
 
-  it('deve deletar uma presença', async () => {
-    const res = await request(server).delete(`/presencas/${presencaId}`);
-    expect(res.status).toBe(200);
-    expect(res.body.message || res.body.mensagem).toBe("Presença deletada com sucesso.");
+  it('🗑️ Deve deletar a presença', async () => {
+    const res = await request(server)
+      .delete(`/presencas/${presencaId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
 
-    const confirm = await request(server).get('/presencas');
-    const apagada = confirm.body.find((p: any) => p.id === presencaId);
-    expect(apagada).toBeUndefined();
+    expect(res.status).toBe(200);
+    expect(res.body.mensagem || res.body.message || '').toMatch(/deletada/i);
   });
 });

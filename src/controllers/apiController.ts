@@ -7,35 +7,35 @@ import { Professor } from '../models/Professor';
 const JWT_SECRET = process.env.JWT_SECRET || 'segredo123';
 
 export const login = async (req: Request, res: Response) => {
-    const { identificador, senha } = req.body;
+  const { identificador, senha } = req.body;
 
-    try {
-        let usuario: any = await Professor.findOne({ where: { matricula: identificador } });
-        let tipo = 'professor';
+  try {
+    let usuario: any = await Professor.findOne({ where: { matricula: identificador } });
+    let tipo = 'professor';
 
-
-        if (!usuario) {
-            usuario = await Aluno.findOne({ where: { matricula: identificador } });
-            tipo = 'aluno';
-        }
-
-        if (!usuario) {
-            return res.status(404).json({ erro: 'Usuário não encontrado' });
-        }
-
-        const senhaValida = await bcrypt.compare(senha, usuario.senha);
-        if (!senhaValida) {
-            return res.status(401).json({ erro: 'Senha inválida' });
-        }
-
-        const payload = { id: usuario.id, nome: usuario.nome, tipo };
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '2h' });
-
-        res.json({ token, usuario: payload });
-    } catch (error) {
-        console.error('Erro no login:', error);
-        res.status(500).json({ erro: 'Erro interno no login' });
+    if (!usuario) {
+      usuario = await Aluno.findOne({ where: { matricula: identificador } });
+      tipo = 'aluno';
     }
+
+    if (!usuario) {
+      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    }
+
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    if (!senhaValida) {
+      return res.status(401).json({ erro: 'Senha inválida' });
+    }
+
+    // ✅ Pega o tipo diretamente do usuário (se existir no banco)
+    const payload = { id: usuario.id, nome: usuario.nome, tipo: usuario.tipo ?? tipo };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '2h' });
+
+    res.json({ token, usuario: payload });
+  } catch (error) {
+    console.error('Erro no login:', error);
+    res.status(500).json({ erro: 'Erro interno no login' });
+  }
 };
 
 export const ping = (req: Request, res: Response) => {

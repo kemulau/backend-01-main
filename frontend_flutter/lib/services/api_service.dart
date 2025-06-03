@@ -9,20 +9,19 @@ class ApiService {
   static Future<Map<String, dynamic>> login(String identificador, String senha) async {
     try {
       final url = Uri.parse('$baseUrl/login');
-
       final response = await http.post(
         url,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'identificador': identificador,
-          'senha': senha
+          'senha': senha,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // salva token localmente
+        // Salva o token localmente
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
 
@@ -35,13 +34,13 @@ class ApiService {
         final erro = jsonDecode(response.body);
         return {
           'success': false,
-          'message': erro['erro'] ?? 'Erro ao logar'
+          'message': erro['erro'] ?? 'Erro ao logar',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Erro de conexão ou servidor: $e'
+        'message': 'Erro de conexão ou servidor: $e',
       };
     }
   }
@@ -50,10 +49,9 @@ class ApiService {
   static Future<bool> cadastrarAluno(String nome, String email, String matricula, String senha) async {
     try {
       final url = Uri.parse('$baseUrl/cadastrarAluno');
-
       final response = await http.post(
         url,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'nome': nome,
           'email': email,
@@ -69,37 +67,39 @@ class ApiService {
     }
   }
 
+  /// Retorna a lista de professores
+  static Future<List<dynamic>> listarProfessores() async {
+    final url = Uri.parse('$baseUrl/professores');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return [];
+    }
+  }
+
+  /// Retorna a lista de alunos
+  static Future<List<dynamic>> listarAlunos() async {
+    final url = Uri.parse('$baseUrl/alunos');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return [];
+    }
+  }
+
   /// Recupera o token salvo localmente
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
-  /// Remove token ao deslogar
+  /// Remove o token ao deslogar
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
   }
-  
-  static Future<List<dynamic>> listarProfessores() async {
-  final url = Uri.parse('$baseUrl/professores');
-
-  final response = await http.get(url);
-
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    return [];
-  }
-  
-}
-static Future<List<dynamic>> listarAlunos() async {
-  final url = Uri.parse('$baseUrl/alunos');
-  final response = await http.get(url);
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    return [];
-  }
-}
 }

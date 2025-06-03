@@ -8,10 +8,10 @@ import { enviarEmail } from '../services/emailService';
 
 
 export const cadastrarAluno = async (req: Request, res: Response): Promise<void> => {
-  const { nome, email, matricula, senha } = req.body;
+  const { nome, email, matricula, senha, tipo } = req.body;
 
   try {
-    const novoAluno = await Aluno.create({ nome, email, matricula, senha });
+    const novoAluno = await Aluno.create({ nome, email, matricula, senha, tipo });
     await enviarEmail(nome, email);
 
     res.status(201).json({

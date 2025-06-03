@@ -4,7 +4,8 @@ import 'screens/dashboard_screen.dart';
 import 'screens/cadastro_aluno_screen.dart';
 import 'screens/listaProfessores_screen.dart'; 
 import 'screens/listaAlunos_screen.dart';
-import 'theme/theme.dart'; // ✅ Importa o tema
+import 'screens/professorDashboard_screen.dart';
+import 'theme/theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,13 +19,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Portal IFPR',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme, // ✅ Usa o tema personalizado
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       onGenerateRoute: (settings) {
         if (settings.name == '/dashboard') {
           final user = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
             builder: (_) => DashboardScreen(user: user),
+          );
+        }
+
+        if (settings.name == '/professorDashboard') {
+          final user = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (_) => ProfessorDashboardScreen(user: user),
           );
         }
 

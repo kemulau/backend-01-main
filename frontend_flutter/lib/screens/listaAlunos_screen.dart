@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 
 class ListaAlunosScreen extends StatefulWidget {
@@ -11,11 +12,26 @@ class ListaAlunosScreen extends StatefulWidget {
 class _ListaAlunosScreenState extends State<ListaAlunosScreen> {
   List<dynamic> alunos = [];
   bool carregando = true;
+  bool acessoNegado = false;
 
   @override
   void initState() {
     super.initState();
-    carregarAlunos();
+    verificarPermissao();
+  }
+
+  Future<void> verificarPermissao() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tipo = prefs.getString('tipoUsuario') ?? 'aluno';
+
+    if (tipo != 'professor') {
+      setState(() {
+        acessoNegado = true;
+        carregando = false;
+      });
+    } else {
+      carregarAlunos();
+    }
   }
 
   Future<void> carregarAlunos() async {
@@ -28,74 +44,61 @@ class _ListaAlunosScreenState extends State<ListaAlunosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    const ifprGreen = Color(0xFF198754);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: const Text(
-          'Alunos Cadastrados',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
+        title: const Text('Lista de Alunos'),
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF198754),
+        foregroundColor: ifprGreen,
+        centerTitle: true,
         elevation: 1,
       ),
+      backgroundColor: const Color(0xFFF2F6FC),
       body: carregando
           ? const Center(child: CircularProgressIndicator())
-          : alunos.isEmpty
+          : acessoNegado
               ? const Center(
                   child: Text(
-                    'Nenhum aluno encontrado.',
-                    style: TextStyle(fontSize: 16),
+                    'Acesso negado: apenas professores podem visualizar esta lista.',
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  itemCount: alunos.length,
-                  itemBuilder: (context, index) {
-                    final aluno = alunos[index];
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.shade300,
-                            blurRadius: 8,
-                            offset: const Offset(2, 4),
+              : alunos.isEmpty
+                  ? const Center(child: Text('Nenhum aluno encontrado.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: alunos.length,
+                      itemBuilder: (context, index) {
+                        final aluno = alunos[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ],
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFF198754),
-                          child: Text(
-                            aluno['nome']?[0].toUpperCase() ?? '',
-                            style: const TextStyle(color: Colors.white),
+                          elevation: 4,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            leading: const CircleAvatar(
+                              backgroundColor: ifprGreen,
+                              child: Icon(Icons.person, color: Colors.white),
+                            ),
+                            title: Text(
+                              aluno['nome'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF198754),
+                              ),
+                            ),
+                            subtitle: Text('Matrícula: ${aluno['matricula']}'),
+                            trailing: Text(
+                              aluno['email'],
+                              style: const TextStyle(color: Colors.black54),
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          aluno['nome'],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Text('Matrícula: ${aluno['matricula']}'),
-                            Text(aluno['email']),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
     );
   }
 }

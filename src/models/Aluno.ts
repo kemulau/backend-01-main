@@ -47,6 +47,9 @@ export class Aluno extends Model {
   @UpdatedAt
   @Column
   updatedAt!: Date;
+  
+  @Column
+  tipo!: string; 
 
   @DeletedAt
   @Column

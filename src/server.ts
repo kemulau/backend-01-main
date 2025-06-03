@@ -6,8 +6,12 @@ import apiRoutes from './routes/routes';
 import { conectaBanco } from './instances/mysql';
 import "./models/associations";
 import eventoRoutes from './routes/eventos.routes';
+import { authMiddleware } from './middleware/auth';
+import testeRoutes from './routes/testes.routes';
 
-dotenv.config({ path: path.resolve(__dirname, './../.env') }); // <- caminho corrigido
+
+
+dotenv.config({ path: path.resolve(__dirname, './../.env') });
 const server = express();
 
 // Configurações
@@ -21,6 +25,12 @@ conectaBanco();
 // Rotas
 server.use(eventoRoutes);
 server.use(apiRoutes);
+server.get('/protegida', authMiddleware, (req: Request, res: Response) => {
+  res.status(200).json({ mensagem: 'Acesso autorizado à rota protegida!' });
+});
+server.use(testeRoutes); // rota de teste de autenticação
+
+
 
 // 404
 server.use((req: Request, res: Response) => {

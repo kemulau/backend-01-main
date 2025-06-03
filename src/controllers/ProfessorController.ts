@@ -3,13 +3,14 @@ import { Professor } from "../models/Professor";
 
 export const criarProfessor = async (req: Request, res: Response) => {
   try {
-    const { nome, email, matricula, senha } = req.body;
+    const { nome, email, matricula, senha, tipo } = req.body;
 
     const professor = await Professor.create({
       nome,
       email,
       matricula,
-      senha
+      senha,
+      tipo
     });
 
     return res.status(201).json({ message: "Professor criado com sucesso.", professor });
@@ -65,7 +66,8 @@ export const deletarProfessor = async (req: Request, res: Response) => {
 
     if (!excluido) return res.status(404).json({ error: "Professor não encontrado." });
 
-    return res.json({ message: "Professor deletado com sucesso." });
+    return res.status(200).json({ mensagem: 'Professor excluído com sucesso.' });
+
   } catch (error) {
     return res.status(500).json({ error: "Erro ao deletar professor." });
   }

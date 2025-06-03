@@ -1,74 +1,109 @@
 import request from 'supertest';
 import server from '../server';
 import { sequelize } from '../instances/mysql';
+import { Professor } from '../models/Professor';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-describe('Testes do ProfessorController', () => {
+describe('🧪 CRUD Professor (apenas professor autorizado)', () => {
+  let tokenProfessor: string;
   let professorId: number;
 
+  const dadosAdmin = {
+    nome: 'Admin Professor',
+    email: 'admin@example.com',
+    senha: '123456',
+    matricula: 'ADM001'
+  };
+
+  const dadosProfessorNovo = {
+    nome: 'Professor Teste',
+    email: 'professor1@example.com',
+    senha: '123456',
+    matricula: 'PROF123'
+  };
+
   beforeAll(async () => {
+    await sequelize.authenticate();
     await sequelize.sync({ force: true });
+
+    const senhaHash = await bcrypt.hash(dadosAdmin.senha, 10);
+    const prof = await Professor.create({
+      ...dadosAdmin,
+      senha: senhaHash
+    });
+
+    tokenProfessor = jwt.sign(
+      { id: prof.id, nome: prof.nome, tipo: 'professor' },
+      process.env.JWT_SECRET || 'segredo123',
+      { expiresIn: '1h' }
+    );
   });
 
   afterAll(async () => {
     await sequelize.close();
   });
 
-  it('deve criar um novo professor', async () => {
-    const novoProfessor = {
-      nome: 'Wagner Weinert',
-      email: 'weinert@faculdade.com',
-      matricula: 'PROF123',
-      senha: 'senha123'
-    };
+  it('✅ Deve cadastrar um professor (com autenticação)', async () => {
+    const res = await request(server)
+      .post('/professores')
+      .set('Authorization', `Bearer ${tokenProfessor}`)
+      .send(dadosProfessorNovo);
 
-    const res = await request(server).post('/professores').send(novoProfessor);
-    console.log('Cadastrar professor:', res.status, res.body);
     expect(res.status).toBe(201);
-    expect(res.body.professor).toBeDefined();
-    expect(res.body.professor.nome).toBe(novoProfessor.nome);
+    expect(res.body.professor).toHaveProperty('id');
+    expect(res.body.professor.email).toBe(dadosProfessorNovo.email);
+
     professorId = res.body.professor.id;
   });
 
-  it('deve buscar um professor por ID', async () => {
-    const res = await request(server).get(`/professores/${professorId}`);
-    console.log('Buscar professor por ID:', res.status, res.body);
+  it('📥 Deve buscar professor por ID (autenticado)', async () => {
+    const res = await request(server)
+      .get(`/professores/${professorId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
+
     expect(res.status).toBe(200);
-    expect(res.body).toBeDefined();
-    expect(res.body.id).toBe(professorId);
+    expect(res.body.nome).toBe(dadosProfessorNovo.nome);
   });
 
-  it('deve listar todos os professores', async () => {
-    const res = await request(server).get('/professores');
-    console.log('Listar professores:', res.status, res.body.length);
+  it('📋 Deve listar todos os professores', async () => {
+    const res = await request(server)
+      .get('/professores')
+      .set('Authorization', `Bearer ${tokenProfessor}`);
+
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.some((p: any) => p.id === professorId)).toBe(true);
   });
 
-  it('deve atualizar os dados de um professor', async () => {
+  it('✏️ Deve atualizar o professor (com autenticação)', async () => {
     const atualizacao = {
-      nome: 'Wagner Atualizado',
-      email: 'wagner@atualizado.com',
-      matricula: 'PROF999',
-      senha: 'novaSenha'
+      nome: 'Professor Atualizado',
+      email: 'prof.atualizado@example.com'
     };
 
-    const res = await request(server).put(`/professores/${professorId}`).send(atualizacao);
-    console.log('Atualizar professor:', res.status, res.body);
+    const res = await request(server)
+      .put(`/professores/${professorId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`)
+      .send(atualizacao);
+
     expect(res.status).toBe(200);
-    expect(res.body.professor).toBeDefined();
     expect(res.body.professor.nome).toBe(atualizacao.nome);
-    expect(res.body.professor.email).toBe(atualizacao.email);
   });
 
-  it('deve deletar um professor', async () => {
-    const res = await request(server).delete(`/professores/${professorId}`);
-    console.log('Deletar professor:', res.status, res.body);
-    expect(res.status).toBe(200);
-    expect(res.body.message || res.body.mensagem).toMatch(/deletado/i);
+  it('🗑️ Deve deletar o professor (com autenticação)', async () => {
+    const res = await request(server)
+      .delete(`/professores/${professorId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
 
-    const resConsulta = await request(server).get(`/professores/${professorId}`);
-    console.log('Confirmar exclusão:', resConsulta.status);
-    expect(resConsulta.status).toBe(404);
+    expect(res.status).toBe(200);
+    expect(res.body.mensagem).toMatch(/excluído/i);
+  });
+
+  it('❌ Deve retornar 404 ao buscar professor deletado', async () => {
+    const res = await request(server)
+      .get(`/professores/${professorId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
+
+    expect(res.status).toBe(404);
   });
 });

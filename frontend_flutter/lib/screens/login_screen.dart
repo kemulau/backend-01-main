@@ -29,11 +29,17 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result['success']) {
       final token = result['token'];
       final user = result['user'];
+      final tipo = user['tipo']?.toLowerCase() ?? 'aluno';
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
+      await prefs.setString('tipoUsuario', tipo); // Salva o tipo do usuário
 
-      Navigator.pushReplacementNamed(context, '/dashboard', arguments: user);
+      if (tipo == 'professor') {
+        Navigator.pushReplacementNamed(context, '/professorDashboard', arguments: user);
+      } else {
+        Navigator.pushReplacementNamed(context, '/dashboard', arguments: user);
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message'] ?? 'Erro no login')),
@@ -79,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // CAMPO MATRÍCULA/SIAPE
                 TextField(
                   controller: _idController,
                   cursorColor: ifprGreen,
@@ -95,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // CAMPO SENHA
                 TextField(
                   controller: _senhaController,
                   obscureText: true,
@@ -112,16 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // BOTÃO ENTRAR
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _fazerLogin,
                     icon: const Icon(Icons.login, color: Colors.white),
-                    label: const Text(
-                      'Entrar',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    label: const Text('Entrar', style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ifprGreen,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -132,7 +132,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // LINK DE CADASTRO
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/cadastroAluno');

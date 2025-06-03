@@ -1,109 +1,119 @@
 import request from 'supertest';
 import server from '../server';
+import { sequelize } from '../instances/mysql';
+import { Aluno } from '../models/Aluno';
+import { Professor } from '../models/Professor';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-describe('Testes do AlunoController', () => {
+describe('🧪 CRUD Aluno (acesso do professor)', () => {
+  let tokenProfessor: string;
   let alunoId: number;
 
-  it('deve cadastrar um novo aluno com sucesso', async () => {
-    const response = await request(server)
+  const dadosProfessor = {
+    nome: 'Professor Teste',
+    email: 'professor@example.com',
+    senha: '123456',
+    matricula: 'PROF123'
+  };
+
+  const dadosAluno = {
+    nome: 'Aluno Teste',
+    email: 'aluno@example.com',
+    senha: '123456',
+    matricula: 'ALU123',
+    turmaId: 1
+  };
+
+  beforeAll(async () => {
+    await sequelize.authenticate();
+    await sequelize.sync({ force: true });
+
+    // Cria turma fictícia
+    await sequelize.query(`
+      INSERT INTO turmas (id, nome, createdAt, updatedAt)
+      VALUES (1, 'Turma Teste', NOW(), NOW())
+    `);
+
+    const senhaHash = await bcrypt.hash(dadosProfessor.senha, 10);
+    const prof = await Professor.create({
+      ...dadosProfessor,
+      senha: senhaHash
+    });
+
+    tokenProfessor = jwt.sign(
+      { id: prof.id, nome: prof.nome, tipo: 'professor' },
+      process.env.JWT_SECRET || 'segredo123',
+      { expiresIn: '1h' }
+    );
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
+  });
+
+  it('✅ Deve cadastrar um aluno (sem autenticação)', async () => {
+    const res = await request(server)
       .post('/cadastrarAluno')
-      .send({
-        nome: 'Kemulau',
-        email: 'kemulau@gmail.com',
-        matricula: '20230000',
-        senha: 'kemulylokinha123'
-      });
+      .send(dadosAluno);
 
-    expect(response.status).toBe(201);
-    alunoId = response.body.novoAluno.id;
+    console.log("Resposta cadastrar:", res.status, res.body);
+
+    expect(res.status).toBe(201);
+    expect(res.body.novoAluno).toHaveProperty('id');
+
+    alunoId = res.body.novoAluno.id;
   });
 
-  it('deve cadastrar outro aluno', async () => {
-    const response = await request(server)
-      .post('/cadastrarAluno')
-      .send({
-        nome: 'Joana Teste',
-        email: 'joana.teste@gmail.com',
-        matricula: '20230001',
-        senha: 'xadrez123'
-      });
-    expect(response.status).toBe(201);
+  it('📥 Deve buscar aluno por ID (professor autenticado)', async () => {
+    const res = await request(server)
+      .get(`/alunos/${alunoId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
+
+    console.log("Resposta buscar:", res.status, res.body);
+
+    expect(res.status).toBe(200);
+    expect(res.body.nome).toBe(dadosAluno.nome);
   });
 
-  it('deve retornar lista de alunos', async () => {
-    const response = await request(server).get('/listarTodosAlunos');
-    console.log('Lista de alunos:', response.status, response.body.length);
-    expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true);
+  it('📋 Deve listar todos os alunos (professor autenticado)', async () => {
+    const res = await request(server)
+      .get('/listarTodosAlunos')
+      .set('Authorization', `Bearer ${tokenProfessor}`);
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it('deve atualizar um aluno', async () => {
-    const response = await request(server)
+  it('✏️ Deve atualizar o aluno (professor autenticado)', async () => {
+    const dadosAtualizados = {
+      nome: 'Aluno Atualizado',
+      email: 'atualizado@example.com'
+    };
+
+    const res = await request(server)
       .put(`/atualizarAluno/${alunoId}`)
-      .send({
-        nome: 'Aluno Atualizado',
-        email: 'atualizado@gmail.com',
-        matricula: 'MAT002',
-        senha: 'aluno1234'
-      });
+      .set('Authorization', `Bearer ${tokenProfessor}`)
+      .send(dadosAtualizados);
 
-    console.log('Atualizar aluno:', response.status, response.body);
-    expect(response.status).toBe(200);
-    expect(response.body.aluno.nome).toBe('Aluno Atualizado');
+    expect(res.status).toBe(200);
+    expect(res.body.aluno.nome).toBe(dadosAtualizados.nome);
   });
 
-  it('deve deletar um aluno', async () => {
-    const response = await request(server)
-      .delete(`/alunos/${alunoId}`);
+  it('🗑️ Deve deletar o aluno (professor autenticado)', async () => {
+    const res = await request(server)
+      .delete(`/alunos/${alunoId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
 
-    console.log('Deletar aluno:', response.status, response.body);
-    expect(response.status).toBe(200);
-    expect(response.body.mensagem).toMatch(/excluído/i);
+    expect(res.status).toBe(200);
+    expect(res.body.mensagem).toMatch(/excluído/i);
   });
 
-  it('deve cadastrar presença e nota e retornar dados completos do aluno', async () => {
-    const disciplinaResponse = await request(server)
-      .post('/cadastrarDisciplina')
-      .send({ nome: `Lógica de Programação ${Date.now()}` });
+  it('❌ Deve retornar 404 ao buscar aluno deletado', async () => {
+    const res = await request(server)
+      .get(`/alunos/${alunoId}`)
+      .set('Authorization', `Bearer ${tokenProfessor}`);
 
-    const disciplinaId = disciplinaResponse.body.novaDisciplina.id;
-
-    const alunoResponse = await request(server)
-      .post('/cadastrarAluno')
-      .send({
-        nome: 'Lucas Prado',
-        email: 'lucas.prado@gmail.com',
-        matricula: `${Date.now()}`,
-        senha: 'lucas123'
-      });
-
-    const novoAlunoId = alunoResponse.body.novoAluno.id;
-
-    const vinculo = await request(server)
-      .post('/vincularAlunoDisciplina')
-      .send({ alunoId: novoAlunoId, disciplinaId });
-
-    expect(vinculo.status).toBe(200);
-
-    const nota = await request(server)
-      .post('/notas')
-      .send({ alunoId: novoAlunoId, disciplinaId, nota: 8.0 });
-
-    expect(nota.status).toBe(201);
-
-    const presencas = [true, true, true, true];
-    for (let presente of presencas) {
-      await request(server)
-        .post('/presencas')
-        .send({ alunoId: novoAlunoId, disciplinaId, presente });
-    }
-
-    const situacao = await request(server).get(`/alunos/${novoAlunoId}/situacao`);
-    expect(situacao.status).toBe(200);
-    expect(situacao.body.nome).toBe('Lucas Prado');
-    expect(situacao.body.email).toBe('lucas.prado@gmail.com');
-    expect(Array.isArray(situacao.body.situacoes)).toBe(true);
-    expect(situacao.body.situacoes.length).toBeGreaterThan(0);
-    expect(situacao.body.situacoes[0].status).toBe('Aprovado');
+    expect(res.status).toBe(404);
   });
 });

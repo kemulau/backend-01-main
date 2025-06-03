@@ -79,7 +79,14 @@ router.post('/login', login);
 
 // Dashboard – qualquer usuário autenticado
 router.get('/dashboard', authMiddleware, (req, res) => {
-  res.json({ mensagem: `Bem-vindo, ${req.user.nome}!`, tipo: req.user.tipo });
+  if (!req.user) {
+    return res.status(401).json({ erro: 'Usuário não autenticado' });
+  }
+
+  res.json({
+    mensagem: `Bem-vindo, ${req.user.nome}!`,
+    tipo: req.user.tipo
+  });
 });
 
 export default router;
