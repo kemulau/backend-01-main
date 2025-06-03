@@ -5,14 +5,12 @@ module.exports = {
     const disciplinas = [
       {
         nome: 'Lógica de Programação',
-        cargaHoraria: 60,
         professorId: 1, // Jussara Sandri
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         nome: 'Banco de Dados',
-        cargaHoraria: 60,
         professorId: 2, // Wagner Weinert
         createdAt: new Date(),
         updatedAt: new Date()

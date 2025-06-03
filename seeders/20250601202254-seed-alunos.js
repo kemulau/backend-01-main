@@ -37,6 +37,14 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        nome: 'Kemuly Lau',
+        email: 'kemulau@ifpr.edu.br',
+        matricula: 'A1006',
+        senha: await bcrypt.hash('1234', 10),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
         nome: 'Thierry Cassino',
         email: 'thierry.cassino@ifpr.edu.br',
         matricula: 'A1005',

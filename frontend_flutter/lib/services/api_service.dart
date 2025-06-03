@@ -21,7 +21,6 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // Salva o token localmente
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
 
@@ -45,7 +44,7 @@ class ApiService {
     }
   }
 
-  /// Cadastra aluno e retorna true se sucesso (status 201)
+  /// Cadastra aluno (rota pública)
   static Future<bool> cadastrarAluno(String nome, String email, String matricula, String senha) async {
     try {
       final url = Uri.parse('$baseUrl/cadastrarAluno');
@@ -67,26 +66,54 @@ class ApiService {
     }
   }
 
-  /// Retorna a lista de professores
+  /// Retorna lista de professores (rota protegida)
   static Future<List<dynamic>> listarProfessores() async {
-    final url = Uri.parse('$baseUrl/professores');
-    final response = await http.get(url);
+    try {
+      final token = await getToken();
+      final url = Uri.parse('$baseUrl/professores');
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Erro listarProfessores: ${response.statusCode} - ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Erro listarProfessores: $e');
       return [];
     }
   }
 
-  /// Retorna a lista de alunos
+  /// Retorna lista de alunos (rota protegida)
   static Future<List<dynamic>> listarAlunos() async {
-    final url = Uri.parse('$baseUrl/alunos');
-    final response = await http.get(url);
+    try {
+      final token = await getToken();
+      final url = Uri.parse('$baseUrl/listarTodosAlunos');
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Erro listarAlunos: ${response.statusCode} - ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Erro listarAlunos: $e');
       return [];
     }
   }

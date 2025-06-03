@@ -43,6 +43,14 @@ module.exports = {
         senha: await bcrypt.hash('123456', 10),
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+            {
+        nome: 'Luccas Kayure',
+        email: 'kayure@ifpr.edu.br',
+        matricula: 'P1006',
+        senha: await bcrypt.hash('123456', 10),
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ];
 

@@ -15,6 +15,7 @@ class ProfessorDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Painel do Professor'),
         backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -57,14 +58,7 @@ class ProfessorDashboardScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
 
-                      // Botões
-                      _botaoMenu(
-                        context,
-                        icon: Icons.class_,
-                        texto: 'Minhas Turmas',
-                        rota: '/turmasProfessor',
-                        theme: theme,
-                      ),
+                      // Botões simplificados
                       _botaoMenu(
                         context,
                         icon: Icons.people,
@@ -74,16 +68,9 @@ class ProfessorDashboardScreen extends StatelessWidget {
                       ),
                       _botaoMenu(
                         context,
-                        icon: Icons.grade,
-                        texto: 'Notas',
-                        rota: '/notas',
-                        theme: theme,
-                      ),
-                      _botaoMenu(
-                        context,
-                        icon: Icons.check_circle_outline,
-                        texto: 'Presenças',
-                        rota: '/presencas',
+                        icon: Icons.person_outline,
+                        texto: 'Professores',
+                        rota: '/professores',
                         theme: theme,
                       ),
                     ],
