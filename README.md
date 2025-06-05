@@ -10,7 +10,6 @@ Esta API oferece suporte completo às seguintes entidades e operações:
 - Cadastro, listagem, atualização e remoção de alunos
 - Vinculação com disciplinas
 - Registro de presença e nota por disciplina
-- Registro de presença e nota por disciplina
 - Cálculo de média e percentual de presença
 - Situação final do aluno (Aprovado/Reprovado)
 - Envio de e-mail de boas-vindas no cadastro
