@@ -10,6 +10,7 @@ Esta API oferece suporte completo às seguintes entidades e operações:
 - Cadastro, listagem, atualização e remoção de alunos
 - Vinculação com disciplinas
 - Registro de presença e nota por disciplina
+- Registro de presença e nota por disciplina
 - Cálculo de média e percentual de presença
 - Situação final do aluno (Aprovado/Reprovado)
 - Envio de e-mail de boas-vindas no cadastro
@@ -17,25 +18,32 @@ Esta API oferece suporte completo às seguintes entidades e operações:
 ### 🧑‍🏫 Professores
 - Cadastro, listagem, atualização e exclusão
 - Armazenamento seguro da senha
+- Acesso a relatórios de desempenho de alunos
+- Acesso autorizado às rotas protegidas para avaliação e presença
 
 ### 📘 Disciplinas
-- CRUD completo
-- Relação com alunos
+- Relação com alunos e professores
+- Relatório de alunos reprovados por nota ou frequência
 
 ### 🏫 Cursos
 - Cadastro e gerenciamento de cursos disponíveis
+- Associação com turmas e disciplinas
 
 ### 👥 Turmas
 - Associação entre cursos, professores e alunos
 - Gestão de turmas vinculadas a disciplinas
+- Visualização de turmas com seus respectivos vínculos
 
 ### ✅ Presenças
 - Registro individual de presença por aluno/disciplina
 - Cálculo do percentual de frequência
+- Listagem de presença por aluno e disciplina
 
 ### 📝 Notas
 - Registro de notas por aluno/disciplina
 - Cálculo de média e verificação de aprovação
+- Listagem detalhada de notas por aluno
+
 
 ### 📅 Eventos
 - Cadastro e listagem de eventos
@@ -48,11 +56,17 @@ Esta API oferece suporte completo às seguintes entidades e operações:
 - Login com retorno de **token JWT**
 - Middleware de autenticação para proteger rotas privadas
 - Middleware de autorização para controle por tipo de usuário (`aluno` ou `professor`)
+- Testes de segurança incluindo:
+  - Login válido
+  - Login inválido
+  - Usuário inexistente
+  - Falta de campos obrigatórios
 
 ### 🔍 Relatórios e Cálculos
 - Alunos reprovados por nota ou frequência (`/disciplinas/:id/reprovados`)
 - Situação individual do aluno (`/alunos/:id/situacao`)
-- Médias e frequências por aluno
+- Médias e presenças por disciplina e por aluno
+- Controle de acesso total aos relatórios pelo tipo de usuário
 
 ---
 
@@ -62,9 +76,10 @@ Aplicação Flutter integrada à API com as seguintes funcionalidades:
 
 - Tela de **login** com autenticação via JWT
 - **Dashboard** com controle de acesso por tipo de usuário (aluno ou professor)
-- Listagem estilizada de alunos e professores
-- **Proteção de rotas**, armazenamento de token e logout
-- Interface visual com tema baseado nas cores do **IFPR**
+- Listagem estilizada e animada de alunos, professores e disciplinas
+- Visualização de situação final do aluno
+- Proteção de rotas, armazenamento de token e logout
+- Interface visual moderna com **animações suaves** e tema baseado nas cores do **IFPR**
 
 ---
 
