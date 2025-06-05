@@ -21,7 +21,7 @@ router.get('/alunos/:id', authMiddleware, autorizaTipos('professor'), AlunoContr
 router.put('/atualizarAluno/:alunoId', authMiddleware, autorizaTipos('professor'), AlunoController.atualizarAluno);
 router.delete('/alunos/:id', authMiddleware, autorizaTipos('professor'), AlunoController.deletarAluno);
 
-router.get('/listarTodasDisciplinasAluno', authMiddleware, AlunoDisciplinaController.listarDisciplinasDoAluno);
+router.get('/listarTodasDisciplinasAluno/:alunoId', AlunoDisciplinaController.listarDisciplinasDoAluno);
 router.get('/alunos/:id/notas', authMiddleware, autorizaTipos('professor'), AlunoController.listarNotasComMedia);
 router.get('/alunos/:id/presencas', authMiddleware, autorizaTipos('professor'), AlunoController.percentualPresenca);
 router.get('/alunos/:id/situacao', authMiddleware, autorizaTipos('professor'), AlunoController.situacaoAluno);
@@ -32,7 +32,7 @@ router.post('/cadastrarDisciplina', authMiddleware, autorizaTipos('professor'), 
 router.get('/disciplinas/:id', authMiddleware, DisciplinaController.buscarDisciplinaPorId);
 router.put('/atualizarDisciplina/:id', authMiddleware, autorizaTipos('professor'), DisciplinaController.atualizarDisciplina);
 router.delete('/disciplinas/:id', authMiddleware, autorizaTipos('professor'), DisciplinaController.deletarDisciplina);
-
+router.get('/disciplinas', authMiddleware, DisciplinaController.listarDisciplinas);
 router.post('/vincularAlunoDisciplina', authMiddleware, autorizaTipos('professor'), AlunoDisciplinaController.vincularAlunoDisciplina);
 router.get('/disciplinas/:id/reprovados', authMiddleware, autorizaTipos('professor'), DisciplinaController.alunosReprovados);
 

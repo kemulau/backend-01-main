@@ -5,24 +5,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   static const String baseUrl = 'http://127.0.0.1:5001';
 
-  /// Realiza login e retorna o usuário + token salvo em SharedPreferences
+  // -------------------- AUTENTICAÇÃO --------------------
   static Future<Map<String, dynamic>> login(String identificador, String senha) async {
     try {
       final url = Uri.parse('$baseUrl/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'identificador': identificador,
-          'senha': senha,
-        }),
+        body: jsonEncode({'identificador': identificador, 'senha': senha}),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
+        await prefs.setString('tipoUsuario', data['usuario']['tipo']);
 
         return {
           'success': true,
@@ -31,20 +28,25 @@ class ApiService {
         };
       } else {
         final erro = jsonDecode(response.body);
-        return {
-          'success': false,
-          'message': erro['erro'] ?? 'Erro ao logar',
-        };
+        return {'success': false, 'message': erro['erro'] ?? 'Erro ao logar'};
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'Erro de conexão ou servidor: $e',
-      };
+      return {'success': false, 'message': 'Erro de conexão ou servidor: $e'};
     }
   }
 
-  /// Cadastra aluno (rota pública)
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('tipoUsuario');
+  }
+
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  // -------------------- CADASTRO --------------------
   static Future<bool> cadastrarAluno(String nome, String email, String matricula, String senha) async {
     try {
       final url = Uri.parse('$baseUrl/cadastrarAluno');
@@ -58,7 +60,6 @@ class ApiService {
           'senha': senha,
         }),
       );
-
       return response.statusCode == 201;
     } catch (e) {
       print('Erro ao cadastrar aluno: $e');
@@ -66,67 +67,63 @@ class ApiService {
     }
   }
 
-  /// Retorna lista de professores (rota protegida)
+  // -------------------- CONSULTAS PROTEGIDAS --------------------
   static Future<List<dynamic>> listarProfessores() async {
-    try {
-      final token = await getToken();
-      final url = Uri.parse('$baseUrl/professores');
-
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        print('Erro listarProfessores: ${response.statusCode} - ${response.body}');
-        return [];
-      }
-    } catch (e) {
-      print('Erro listarProfessores: $e');
-      return [];
-    }
+    return _getList('/professores');
   }
 
-  /// Retorna lista de alunos (rota protegida)
   static Future<List<dynamic>> listarAlunos() async {
+    return _getList('/listarTodosAlunos');
+  }
+
+  static Future<List<dynamic>> listarDisciplinas() async {
+    return _getList('/disciplinas');
+  }
+
+  static Future<List<dynamic>> listarNotasAluno(int alunoId) async {
+    return _getList('/alunos/$alunoId/notas');
+  }
+
+  static Future<List<dynamic>> listarPresencasDoAluno(int alunoId) async {
+    return _getList('/alunos/$alunoId/presencas');
+  }
+
+  static Future<List<dynamic>> listarSituacaoFinalDoAluno(int alunoId) async {
+    return _getList('/alunos/$alunoId/situacao');
+  }
+
+  static Future<List<dynamic>> listarAlunosReprovados(int disciplinaId) async {
+    return _getList('/disciplinas/$disciplinaId/reprovados');
+  }
+
+  static Future<List<dynamic>> listarDisciplinasDoAluno(int alunoId) async {
+    // Correção: o backend espera um parâmetro de query e não como parte da URL
+    return _getList('/listarTodasDisciplinasAluno?alunoId=$alunoId');
+  }
+
+  // -------------------- MÉTODO GENÉRICO DE GET COM TOKEN --------------------
+  static Future<List<dynamic>> _getList(String endpoint) async {
     try {
       final token = await getToken();
-      final url = Uri.parse('$baseUrl/listarTodosAlunos');
+      final url = Uri.parse('$baseUrl$endpoint');
 
       final response = await http.get(
         url,
         headers: {
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        print('Erro listarAlunos: ${response.statusCode} - ${response.body}');
+        print('Erro ao listar $endpoint: ${response.statusCode} - ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Erro listarAlunos: $e');
+      print('Erro em _getList: $e');
       return [];
     }
-  }
-
-  /// Recupera o token salvo localmente
-  static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  /// Remove o token ao deslogar
-  static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
   }
 }

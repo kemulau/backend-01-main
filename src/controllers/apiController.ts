@@ -27,11 +27,11 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ erro: 'Senha inválida' });
     }
 
-    // ✅ Pega o tipo diretamente do usuário (se existir no banco)
-    const payload = { id: usuario.id, nome: usuario.nome, tipo: usuario.tipo ?? tipo };
+    const payload = { id: usuario.id, nome: usuario.nome, tipo };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '2h' });
 
     res.json({ token, usuario: payload });
+    return; 
   } catch (error) {
     console.error('Erro no login:', error);
     res.status(500).json({ erro: 'Erro interno no login' });

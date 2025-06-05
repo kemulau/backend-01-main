@@ -26,9 +26,8 @@ export class Professor extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   senha!: string;
 
-  @Column
-  tipo!: string; 
-
+  @Column({ type: DataType.STRING, allowNull: false })
+  tipo!: string;
   // 🔐 Hook para criptografar a senha automaticamente
   @BeforeCreate
   @BeforeUpdate

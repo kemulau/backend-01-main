@@ -87,7 +87,14 @@ export const buscarDisciplinaPorId = async (req: Request, res: Response) => {
     return res.status(500).json({ mensagem: 'Erro ao buscar disciplina.', erro });
   }
 };
-
+export const listarDisciplinas = async (req: Request, res: Response) => {
+  try {
+    const disciplinas = await Disciplina.findAll(); 
+    res.json(disciplinas);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao listar disciplinas' });
+  }
+};
 export const alunosReprovados = async (req: Request, res: Response) => {
   // Extrai o ID da disciplina a partir dos parâmetros da rota
   const { id } = req.params;
@@ -160,4 +167,5 @@ export const alunosReprovados = async (req: Request, res: Response) => {
     return res
       .status(500).json({ error: 'Erro ao buscar reprovados.', details: error });
   }
+  
 };

@@ -216,13 +216,9 @@ export const atualizarAluno = async (req: Request, res: Response): Promise<void>
           presenca: Number(presenca.toFixed(1)),
           status
         });
-      });
-  
-      return res.status(200).json({
-        nome: aluno.nome,
-        email: aluno.email,
-        situacoes: resultado
-      });
+      });  
+      return res.status(200).json(resultado);
+
     } catch (error) {
       return res.status(500).json({ error: 'Erro ao verificar situação.' });
     }

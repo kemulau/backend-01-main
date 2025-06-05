@@ -22,6 +22,10 @@ module.exports = {
       // Thierry Cassino (A1005)
       { alunoId: 5, disciplinaId: 1, createdAt: new Date(), updatedAt: new Date() },
       { alunoId: 5, disciplinaId: 2, createdAt: new Date(), updatedAt: new Date() },
+      
+       // Kemuly Lau A MAIS MAIS (A1006)
+      { alunoId: 6, disciplinaId: 1, createdAt: new Date(), updatedAt: new Date() },
+      { alunoId: 6, disciplinaId: 2, createdAt: new Date(), updatedAt: new Date() },
     ];
 
     await queryInterface.bulkInsert('aluno_disciplinas', alunoDisciplinas, {});

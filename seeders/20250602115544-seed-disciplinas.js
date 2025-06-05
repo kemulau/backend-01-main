@@ -4,14 +4,14 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const disciplinas = [
       {
+        id: '1',
         nome: 'Lógica de Programação',
-        professorId: 1, // Jussara Sandri
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
+        id: '2',
         nome: 'Banco de Dados',
-        professorId: 2, // Wagner Weinert
         createdAt: new Date(),
         updatedAt: new Date()
       }

@@ -59,29 +59,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    const ifprGreen = Color(0xFF198754);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text(
-            'Portal IFPR',
-            style: theme.textTheme.titleLarge?.copyWith(color: theme.primaryColor),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 1,
-          centerTitle: true,
-        ),
+      backgroundColor: const Color(0xFFF2F6FC),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Portal IFPR'),
+        backgroundColor: Colors.white,
+        foregroundColor: ifprGreen,
+        centerTitle: true,
+        elevation: 1,
       ),
       body: Center(
         child: Container(
           width: 320,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: theme.cardColor,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: const [
               BoxShadow(
@@ -94,20 +89,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 40,
-                backgroundColor: theme.primaryColor,
-                child: const Icon(Icons.person, size: 40, color: Colors.white),
+                backgroundColor: ifprGreen,
+                child: Icon(Icons.person, size: 40, color: Colors.white),
               ),
               const SizedBox(height: 16),
               Text(
                 nome,
-                style: theme.textTheme.titleLarge,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: ifprGreen,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Tipo de usuário: $tipo',
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                style: const TextStyle(color: Colors.black54),
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(
@@ -115,7 +114,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: const Icon(Icons.school, color: Colors.white),
                 label: const Text('Ver Professores'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade600,
+                  backgroundColor: ifprGreen,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 45),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -127,7 +126,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: const Icon(Icons.group, color: Colors.white),
                 label: const Text('Ver Alunos'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
+                  backgroundColor: ifprGreen,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 45),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

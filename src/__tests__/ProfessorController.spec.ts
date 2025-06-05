@@ -5,6 +5,8 @@ import { Professor } from '../models/Professor';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+jest.setTimeout(20000);
+
 describe('🧪 CRUD Professor (apenas professor autorizado)', () => {
   let tokenProfessor: string;
   let professorId: number;
@@ -13,14 +15,16 @@ describe('🧪 CRUD Professor (apenas professor autorizado)', () => {
     nome: 'Admin Professor',
     email: 'admin@example.com',
     senha: '123456',
-    matricula: 'ADM001'
+    matricula: 'ADM001',
+    tipo: 'professor'
   };
 
   const dadosProfessorNovo = {
     nome: 'Professor Teste',
     email: 'professor1@example.com',
     senha: '123456',
-    matricula: 'PROF123'
+    matricula: 'PROF123',
+    tipo: 'aluno'
   };
 
   beforeAll(async () => {
